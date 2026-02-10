@@ -1,3 +1,5 @@
+// EXAMPLE models.ts
+
 import { getModelForClass, prop } from "@typegoose/typegoose";
 
 class Job {

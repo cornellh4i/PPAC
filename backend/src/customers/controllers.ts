@@ -1,3 +1,5 @@
+// EXAMPLE controllers.ts
+
 import mongoose from "mongoose";
 
 import { CustomerModel, Customer } from "./models";

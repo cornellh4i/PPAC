@@ -1,3 +1,5 @@
+// EXAMPLE views.ts
+
 import { Router } from "express";
 import mongoose from "mongoose";
 import CustomerController from "./controllers";
