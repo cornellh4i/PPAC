@@ -2,7 +2,7 @@ import { getModelForClass, prop } from "@typegoose/typegoose";
 import { ObjectId } from "mongoose";
 
 class User {
-    constructor(_id: ObjectId, firebaseUid: string, email: string, name: string, createdAt: Date, role: ("student" | "practitioner" | "admin"), profileImage: string, practitionerDetails?: {specialty: string, organization: string, location: string, verified: boolean}) {
+    constructor(_id: ObjectId, firebaseUid: string, email: string, name: string, createdAt: Date, role: ("student" | "practitioner" | "admin"), profileImage: string, practitionerProfile?: {specialty: string, organization: string, location: string, verified: boolean}) {
     this._id = _id;
     this.firebaseUid = firebaseUid;
     this.email = email;
@@ -10,11 +10,11 @@ class User {
     this.createdAt = createdAt;
     this.role = role;
     if (role === "practitioner") {
-        this.practitionerDetails = {
-            specialty: practitionerDetails?.specialty || "",
-            organization: practitionerDetails?.organization || "",
-            location: practitionerDetails?.location || "",
-            verified: practitionerDetails?.verified || false
+        this.practitionerProfile = {
+            specialty: practitionerProfile?.specialty || "",
+            organization: practitionerProfile?.organization || "",
+            location: practitionerProfile?.location || "",
+            verified: practitionerProfile?.verified || false
         };
     }
 
@@ -42,7 +42,7 @@ class User {
     public profileImage?: string;
 
     @prop()
-    public practitionerDetails?: {
+    public practitionerProfile?: {
         specialty: string;
         organization: string;
         location: string;

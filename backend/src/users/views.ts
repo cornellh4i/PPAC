@@ -29,6 +29,20 @@ userRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
+userRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
+  try {
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const user = await userControllers.getUserById(id);
+    if (!user) {
+      res.status(404).send(errorJson("User not found"));
+      return;
+    }
+    const updatedUser = await userControllers.updateUser(id, req.body);
+    res.status(200).send(successJson(updatedUser));
+  } catch (error) {
+    res.status(400).send(errorJson("Failed to update user"));
+  }
+});
 
 userRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
   try {
