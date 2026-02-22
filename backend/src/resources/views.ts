@@ -42,4 +42,24 @@ resourceRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
+
+resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
+  try {
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const resource = await resourceControllers.getResourceById(id);
+    if (!resource) {
+      res.status(404).send(errorJson("Resource not found"));
+      return;
+    }
+    const result = await resourceControllers.deleteResourceById(id);
+    if (result.deletedCount > 0) {
+      res.status(200).send(successJson(result));
+    } else {
+      res.status(404).send(errorJson("Failure to delete user"));
+    }
+  } catch (error) {
+    res.status(400).send(errorJson(error));
+  }
+});
+
 export default resourceRouter;
