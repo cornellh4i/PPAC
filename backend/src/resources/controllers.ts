@@ -5,7 +5,7 @@ const addResource = async (resource: Resource) => {
   const newResource = new ResourceModel(resource);
   return newResource.save();
 }
-const getResources = async () => ResourceModel.find({});
+const getResources = async (filter: Partial<Pick<Resource, "type">> = {}) => ResourceModel.find(filter);
 const getResourceById = async (id: mongoose.Types.ObjectId) => ResourceModel.findOne({ _id: id });
 const updateResource = async (id: mongoose.Types.ObjectId, updatedFields: Partial<Resource>) => ResourceModel.findOneAndUpdate({ _id: id }, updatedFields);   
 const deleteResourceById = async (id: mongoose.Types.ObjectId) => ResourceModel.deleteOne({ _id: id });

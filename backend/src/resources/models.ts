@@ -3,24 +3,21 @@ import { ObjectId } from "mongoose";
 
 class Resource {
     @prop({ required: true, unique: true })
-    public _id!: ObjectId;
-
-    @prop({ required: true, unique: true })
     public title!: string;
 
-    @prop({ required: true, unique: true })
+    @prop({ required: true })
     public type!: "website" | "podcast" | "book" | "video";
 
-    @prop({ required: true, unique: true })
+    @prop({ required: true })
     public description!: string;
 
-    @prop({ required: true, unique: true })
+    @prop({ required: true })
     public link!: string;
 
-    @prop({ required: true, unique: true })
-    public file!: string;
+    @prop()
+    public file?: string;
 
-    @prop({ required: true, unique: true })
+    @prop({ required: true })
     public createdBy!: ObjectId; // users._id
 
     @prop({ default: Date.now })
