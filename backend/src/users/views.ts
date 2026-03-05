@@ -19,7 +19,7 @@ userRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const user = await userControllers.getUserById(id);
-    if(user.length > 0){
+    if(user){
       res.status(200).send(successJson(user));
     } else {
       res.status(404).send(errorJson("User not found"));
@@ -48,7 +48,7 @@ userRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const user = await userControllers.getUserById(id);
-    if (!user || user.length === 0) {
+    if (!user) {
       res.status(404).send(errorJson("User not found"));
       return;
     }
