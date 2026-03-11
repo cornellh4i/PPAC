@@ -11,7 +11,7 @@ eventRouter.post("/", async (req, res) => {
     return res.status(400).send(errorJson("Missing required fields"));
   }
   try {
-    const event = await eventControllers.addEvent(req.body);
+    const event = await eventControllers.insertEvent(req.body);
     res.status(201).send(successJson(event));
   } catch (error) {
     res.status(400).send(errorJson((error as Error).message));
