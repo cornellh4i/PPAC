@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import userRouter from "./users/views";
 import authRouter from "./auth/views"
 import resourceRouter from "./resources/views";
+import eventRouter from "./events/views";
 import swaggerUI from "swagger-ui-express";
 import spec from "../api-spec.json";
 import { dbConnect } from "./database";
@@ -28,6 +29,7 @@ const apiRouter = express.Router();
 apiRouter.use("/users", userRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/resources", resourceRouter);
+apiRouter.use("/events", eventRouter);
 
 app.use("/api", apiRouter)
 
