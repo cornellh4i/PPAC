@@ -9,7 +9,7 @@ function Button({
   return (
     <button
       className={`button button--${variant}`}
-      onClick={onClick}
+      onClick={(e) => onClick(e)}
       disabled={disabled}
     >
       {children}
