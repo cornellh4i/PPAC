@@ -1,21 +1,21 @@
 import { getModelForClass, prop } from "@typegoose/typegoose";
-import { ObjectId } from "mongoose";
+import mongoose from "mongoose";
 
-class Location {
-  @prop({ required: true })
+class EventLocation {
+  @prop({ required: true, enum: ["in_person", "virtual", "hybrid"] })
   public type!: "in_person" | "virtual" | "hybrid";
 
-  @prop()
-  public venue?: string;
+  @prop({ required: true })
+  public venue!: string;
 
-  @prop()
-  public address?: string;
+  @prop({ default: null })
+  public address?: string | null;
 
-  @prop()
-  public link?: string;
+  @prop({ default: null })
+  public link?: string | null;
 }
 
-class Organizer {
+class EventOrganizer {
   @prop({ required: true })
   public name!: string;
 
@@ -26,50 +26,48 @@ class Organizer {
   public contactEmail!: string;
 }
 
-class Event {
+export class Event {
   @prop({ required: true })
   public title!: string;
 
-  @prop({ required: true })
+  @prop({ default: "" })
   public description!: string;
 
-  @prop({ required: true })
+  @prop({ required: true, enum: ["ppac", "partner", "campus"] })
   public eventType!: "ppac" | "partner" | "campus";
 
   @prop({ required: true })
   public startTime!: Date;
 
-  @prop()
-  public endTime?: Date;
+  @prop({ required: true })
+  public endTime!: Date;
 
   @prop({ default: false })
-  public allDay?: boolean;
+  public allDay!: boolean;
 
   @prop({ required: true })
-  public location!: Location;
+  public location!: EventLocation;
 
   @prop({ required: true })
-  public organizer!: Organizer;
+  public organizer!: EventOrganizer;
 
-  @prop({ type: () => [String] })
-  public tags?: string[];
+  @prop({ type: () => [String], default: [] })
+  public tags!: string[];
 
-  @prop({ required: true })
-  public createdBy!: ObjectId; // users._id
+  @prop({ required: true, type: mongoose.Types.ObjectId })
+  public createdBy!: mongoose.Types.ObjectId;
 
   @prop({ default: Date.now })
-  public createdAt?: Date;
+  public createdAt!: Date;
 
   @prop({ default: Date.now })
-  public updatedAt?: Date;
+  public updatedAt!: Date;
 
   @prop({ default: false })
-  public isPublished?: boolean;
+  public isPublished!: boolean;
 
-  @prop({ default: "public" })
-  public visibility?: "public" | "ppac_only";
+  @prop({ default: "public", enum: ["public", "ppac_only"] })
+  public visibility!: "public" | "ppac_only";
 }
 
-const EventModel = getModelForClass(Event);
-
-export { Event, EventModel };
+export const EventModel = getModelForClass(Event);
