@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './TextInput.scss';
 
 interface TextInputProps {
     value: string; 
@@ -6,10 +7,6 @@ interface TextInputProps {
     placeholder?: string;
     type?: 'text';
     variant?: 'primary';
-}
-
-const variantStyles: Record<string, string> = {
-    primary: 'border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -24,7 +21,7 @@ const TextInput: React.FC<TextInputProps> = ({
                 value = {value}
                 placeholder = {placeholder}
                 onChange = {(e) => onChange(e.target.value)}
-                className = {variantStyles[variant]}
+                className = {`text-input text-input--${variant}`}
     />;
 };
 
