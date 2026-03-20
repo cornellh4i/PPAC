@@ -22,3 +22,4 @@
   - Katelynn Han
   - Maia Schlesiger
   - Sophia Zhen
+  - Jenny Kim
