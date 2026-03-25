@@ -1,18 +1,16 @@
 import "./ProviderCard.scss";
 
-export type AvailabilitySlot = {
+export type Availability= {
   day: string;
   time: string;
 };
-
-export type Availability = AvailabilitySlot[];
 
 export type ProviderCardProps = {
   name: string;
   rating: number;
   field: string;
   location: string;
-  availability: Availability;
+  availability: Availability[];
   insurance: string[];
   number: number;
   about: string;
