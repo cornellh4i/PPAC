@@ -1,0 +1,129 @@
+.providerCard {
+  width: min(100%, 500px);
+  background: #ffffff;
+  border: 1px solid #c8c8c8;
+  border-radius: 16px;
+  padding: 24px;
+  color: #000000;
+}
+
+.providerCard__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.providerCard__avatarImage,
+.providerCard__avatarFallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.providerCard__avatarFallback {
+  background: #d2d2d2;
+}
+
+.providerCard__nameGroup {
+  min-width: 0;
+}
+
+.providerCard__name {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.providerCard__field {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.providerCard__infoGrid {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.providerCard__infoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.providerCard__infoRow {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #000000;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.providerCard__insurance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.providerCard__insuranceBadge {
+  background: #e0e0e0;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #000000;
+  line-height: 1.4;
+}
+
+.providerCard__footer {
+  display: flex;
+  gap: 12px;
+}
+
+.providerCard__footer .button {
+  min-height: 48px;
+  border-radius: 12px;
+}
+
+.providerCard__footer .button:first-child {
+  flex: 1;
+}
+
+.providerCard__footer .button:last-child {
+  min-width: 80px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (max-width: 500px) {
+  .providerCard {
+    padding: 16px;
+  }
+
+  .providerCard__infoGrid {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .providerCard__footer {
+    gap: 8px;
+  }
+}
