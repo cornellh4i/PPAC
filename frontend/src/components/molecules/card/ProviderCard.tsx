@@ -1,64 +1,95 @@
 import "./ProviderCard.scss";
+import Button from "../../atoms/Button/Button";
+import { MapPin, Phone, Calendar, Shield } from "lucide-react";
 
-export type Availability= {
+export type Availability = {
   day: string;
   time: string;
 };
 
 export type ProviderCardProps = {
   name: string;
-  rating: number;
   field: string;
   location: string;
   availability: Availability[];
   insurance: string[];
-  number: number;
+  number: string;
   about: string;
   experience: string;
+  imageUrl?: string;
 };
 
 const ProviderCard = ({
   name,
-  rating,
   field,
   location,
   availability,
   insurance,
   number,
-  about,
-  experience,
+  imageUrl,
 }: ProviderCardProps) => {
   return (
-    <div className="providerCard providerCard--provider">
-      <h2 className="providerCard__name">{name}</h2>
-      <p className="providerCard__rating">Rating: {rating}</p>
-      <p className="providerCard__field">Field: {field}</p>
-      <p className="providerCard__location">Location: {location}</p>
+    <article className="providerCard">
+      <div className="providerCard__header">
+        <div className="providerCard__avatarWrapper">
+          {imageUrl ? (
+            <img className="providerCard__avatarImage" src={imageUrl} alt={`${name} profile`} />
+          ) : (
+            <div className="providerCard__avatarFallback" />
+          )}
+        </div>
 
-      <div className="providerCard__availability">
-        <h3>Availability</h3>
-        <ul>
-          {availability.map((slot, index) => (
-            <li key={index}>
-              {slot.day}: {slot.time}
-            </li>
-          ))}
-        </ul>
+        <div className="providerCard__nameGroup">
+          <h2 className="providerCard__name">{name}</h2>
+          <p className="providerCard__field">{field}</p>
+        </div>
       </div>
 
-      <div className="providerCard__insurance">
-        <h3>Insurance</h3>
-        <ul>
-          {insurance.map((item, index) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
+      <div className="providerCard__infoGrid">
+        <div className="providerCard__infoColumn">
+          <p className="providerCard__infoRow">
+            <MapPin size={16} aria-hidden="true" />
+            <span>{location}</span>
+          </p>
+
+          <p className="providerCard__infoRow">
+            <Phone size={16} aria-hidden="true" />
+            <span>{number}</span>
+          </p>
+        </div>
+
+        <div className="providerCard__infoColumn">
+          <p className="providerCard__infoRow">
+            <Calendar size={16} aria-hidden="true" />
+            <span>
+              {availability.map((slot, i) => (
+                <span key={i}>{slot.day}, {slot.time}{i < availability.length - 1 ? " | " : ""}</span>
+              ))}
+            </span>
+          </p>
+
+          <p className="providerCard__infoRow">
+            <Shield size={16} aria-hidden="true" />
+            <span className="providerCard__insurance">
+              {insurance.map((item) => (
+                <span className="providerCard__insuranceBadge" key={item}>
+                  {item}
+                </span>
+              ))}
+            </span>
+          </p>
+        </div>
       </div>
 
-      <p className="providerCard__number">Phone: {number}</p>
-      <p className="providerCard__about">{about}</p>
-      <p className="providerCard__experience">Experience: {experience}</p>
-    </div>
+      <div className="providerCard__footer">
+        <Button variant="rect">
+          Book Appointment
+        </Button>
+        <Button variant="rect">
+          More
+        </Button>
+      </div>
+    </article>
   );
 };
 
