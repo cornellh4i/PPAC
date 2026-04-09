@@ -1,12 +1,12 @@
 @import '@fontsource/be-vietnam-pro';
 
-.navbar {   
+.navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   height: 64px;
-  border-top: 3px solid #3B82F6;
+  // border-top: 3px solid #3B82F6;
   background-color: #ffffff;
   font-family: 'BE Vietnam Pro', sans-serif;
 
@@ -43,7 +43,7 @@
     white-space: nowrap;
 
     &--active {
-      background-color: #FDE0E6; 
+      background-color: #FDE0E6;
       font-weight: 500;
     }
 
