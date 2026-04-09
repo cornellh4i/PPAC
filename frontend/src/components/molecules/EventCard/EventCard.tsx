@@ -1,5 +1,5 @@
 import React from 'react';
-// import './EventCard.scss';
+import './EventCard.scss';
 
 interface EventCardProps {
     name: string;
