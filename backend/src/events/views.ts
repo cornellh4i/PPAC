@@ -26,7 +26,7 @@ eventRouter.get("/", async (req, res) => {
   if (req.query.startDate) filter.startTime = { $gte: new Date(req.query.startDate as string) };
   if (req.query.endDate) filter.endTime = { $lte: new Date(req.query.endDate as string) };
   try {
-    const events = await eventControllers.getEvents(filter);
+    const events = await eventControllers.getEvents();
     res.status(200).send(successJson(events));
   } catch (error) {
     res.status(400).send(errorJson((error as Error).message));
