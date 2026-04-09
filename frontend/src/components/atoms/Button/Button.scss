@@ -1,6 +1,7 @@
-@import '@fontsource/be-vietnam-pro';
-
 .button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
   &--rounded {
     background-color: #972C52;
     color: #ffffff;
@@ -17,4 +18,26 @@
       background-color: #621e32;
     }
   }
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+
+.button--rect {
+  background: #d9d9d9;
+  color: #000000;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.2;
+  padding: 10px 20px;
+  transition: filter 0.15s ease;
+}
+
+.button--rect:hover {
+  filter: brightness(0.97);
 }

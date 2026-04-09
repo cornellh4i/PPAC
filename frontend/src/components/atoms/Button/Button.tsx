@@ -3,7 +3,7 @@ import "./Button.scss";
 
 interface ButtonProps {
   children: React.ReactNode;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: string;
   disabled?: boolean;
 }
@@ -17,7 +17,7 @@ function Button({
   return (
     <button
       className={`button button--${variant}`}
-      onClick={(e) => onClick(e)}
+      onClick={(e) => onClick?.(e)}
       disabled={disabled}
     >
       {children}
