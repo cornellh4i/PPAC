@@ -12,6 +12,15 @@ import { User, FirebaseUserData } from '../types';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
+function requireAuth() {
+    if (!auth) {
+        throw new Error(
+            'Firebase is not configured. Add REACT_APP_FIREBASE_* keys to frontend/.env.local (see team docs or Firebase console).'
+        );
+    }
+    return auth;
+}
+
 // Email/Password Sign Up
 export const signUpWithEmail = async (
     email: string,
@@ -19,7 +28,7 @@ export const signUpWithEmail = async (
 ): Promise<FirebaseUser> => {
     try {
         const userCredential: UserCredential = await createUserWithEmailAndPassword(
-            auth,
+            requireAuth(),
             email,
             password
         );
@@ -45,7 +54,7 @@ export const loginWithEmail = async (
 ): Promise<FirebaseUser> => {
     try {
         const userCredential: UserCredential = await signInWithEmailAndPassword(
-            auth,
+            requireAuth(),
             email,
             password
         );
@@ -65,7 +74,7 @@ export const loginWithEmail = async (
 export const loginWithGoogle = async (): Promise<FirebaseUser> => {
     try {
         const provider = new GoogleAuthProvider();
-        const userCredential: UserCredential = await signInWithPopup(auth, provider);
+        const userCredential: UserCredential = await signInWithPopup(requireAuth(), provider);
         const token = await userCredential.user.getIdToken();
 
         // Send token to backend
@@ -85,7 +94,7 @@ export const loginWithGoogle = async (): Promise<FirebaseUser> => {
 // Logout
 export const logout = async (): Promise<void> => {
     try {
-        await signOut(auth);
+        await signOut(requireAuth());
     } catch (error) {
         console.error('Logout error:', error);
         throw error;
