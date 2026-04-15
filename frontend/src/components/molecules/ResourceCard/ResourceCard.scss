@@ -1,0 +1,156 @@
+.resource-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 427px;
+  min-height: 607px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 50px;
+  border: 1px solid #e5e5e5;
+  border-radius: 15px;
+  background: #fffdfb;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  font-family: 'BE Vietnam Pro', sans-serif;
+  color: #000000;
+}
+
+.resource-card__pill {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 34px;
+  padding: 7px 18px;
+  border: 1px solid #f9d4dc;
+  border-radius: 24px;
+  background: #fde0e6;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.resource-card__image-wrapper {
+  width: 327px;
+  max-width: 100%;
+  height: 240px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.resource-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.resource-card__body {
+  width: 327px;
+  max-width: 100%;
+  min-height: 201px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.resource-card__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 123px;
+}
+
+.resource-card__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.resource-card__description {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.resource-card__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.resource-card__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.5);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.resource-card__arrow {
+  width: 8px;
+  height: 8px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-right: 2px;
+}
+
+.resource-card__link:hover {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.resource-card__link:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+@media (max-width: 540px) {
+  .resource-card {
+    padding: 24px;
+    min-height: auto;
+  }
+
+  .resource-card__body {
+    width: 100%;
+    padding: 0;
+    gap: 24px;
+    min-height: auto;
+  }
+
+  .resource-card__copy {
+    min-height: auto;
+  }
+
+  .resource-card__image-wrapper {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 327 / 240;
+  }
+
+  .resource-card__footer {
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: auto;
+  }
+}
