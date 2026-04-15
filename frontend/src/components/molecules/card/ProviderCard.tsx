@@ -94,7 +94,7 @@ const ProviderCard = ({
         <Button variant="rect">
           Book Appointment
         </Button>
-        <Button variant="rect">
+        <Button variant="rect" onClick={() => setIsOpen(true)}>
           More
         </Button>
       </div>
