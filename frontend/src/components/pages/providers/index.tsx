@@ -1,4 +1,4 @@
-import ProviderCard, { ProviderCardProps } from "../../molecules/card/ProviderCard";
+import ProviderCard, { ProviderCardProps } from "../../molecules/ProviderCard/ProviderCard";
 import "./Providers.scss";
 
 const DUMMY_PROVIDERS: ProviderCardProps[] = [
