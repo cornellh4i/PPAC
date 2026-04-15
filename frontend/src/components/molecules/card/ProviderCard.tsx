@@ -1,6 +1,8 @@
 import "./ProviderCard.scss";
 import Button from "../../atoms/Button/Button";
 import { MapPin, Phone, Calendar, Shield } from "lucide-react";
+import { useState } from "react";
+import ProviderModal from "../../organisms/ProviderModal/ProviderModal";
 
 export type Availability = {
   day: string;
@@ -11,6 +13,7 @@ export type ProviderCardProps = {
   name: string;
   field: string;
   location: string;
+  rating?: number;
   availability: Availability[];
   insurance: string[];
   number: string;
@@ -23,12 +26,18 @@ const ProviderCard = ({
   name,
   field,
   location,
+  rating,
   availability,
   insurance,
   number,
+  about,
+  experience,
   imageUrl,
 }: ProviderCardProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
+    <>
     <article className="providerCard">
       <div className="providerCard__header">
         <div className="providerCard__avatarWrapper">
@@ -89,7 +98,25 @@ const ProviderCard = ({
           More
         </Button>
       </div>
-    </article>
+      
+        </article>
+
+      {/* Modal */}
+      <ProviderModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        name={name}
+        field={field}
+        location={location}
+        rating={rating}
+        availability={availability}
+        insurance={insurance}
+        number={number}
+        about={about}
+        experience={experience}
+        imageUrl={imageUrl}
+      />
+    </>
   );
 };
 
