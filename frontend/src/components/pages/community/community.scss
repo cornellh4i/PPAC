@@ -1,0 +1,15 @@
+.community {
+  min-height: calc(100vh - 110px);
+  background: #000;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .community {
+    padding: 20px;
+  }
+}

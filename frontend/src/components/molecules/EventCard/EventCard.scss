@@ -1,0 +1,58 @@
+.event-card {
+  width: min(100%, 360px);
+  background: #d9d9d9;
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+  color: #121212;
+}
+
+.event-card__image,
+.event-card__image-fallback {
+  width: 100%;
+  aspect-ratio: 1.22 / 1;
+  border-radius: 10px;
+  background: #c4c4c4;
+  display: block;
+  object-fit: cover;
+}
+
+.event-card__content {
+  padding: 12px 8px 10px;
+}
+
+.event-card__title {
+  margin: 0 0 14px;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.event-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.event-card__actions .button {
+  min-height: 42px;
+  padding: 8px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-card__all-events {
+  margin-right: 8px;
+}
+
+.event-card__arrow {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #4b4b4b;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

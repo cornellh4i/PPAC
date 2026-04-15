@@ -1,34 +1,44 @@
 import React from 'react';
 import './EventCard.scss';
+import Button from '../../atoms/Button/Button';
+import { ArrowRight } from 'lucide-react';
 
 interface EventCardProps {
-    name: string;
-    date: string;
-    description: string;
-    image: string;
-    location: string;
+    title: string;
+    primaryActionLabel?: string;
+    secondaryActionLabel?: string;
+    imageUrl?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
-    name,
-    date,
-    description,
-    image,
-    location,
+    title,
+    primaryActionLabel = 'Sign up!',
+    secondaryActionLabel = 'All events',
+    imageUrl,
 }) => {
     return (
         <div className="event-card">
-            <img 
-                src={image} 
-                alt={name} 
-                className="event-card__image"
-            />
+            {imageUrl ? (
+                <img
+                    src={imageUrl}
+                    alt={`${title} event`}
+                    className="event-card__image"
+                />
+            ) : (
+                <div className="event-card__image-fallback" aria-hidden="true" />
+            )}
 
             <div className="event-card__content">
-                <h2 className="event-card__name">{name}</h2>
-                <p className="event-card__date">{date}</p>
-                <p className="event-card__location">{location}</p>
-                <p className="event-card__description">{description}</p>
+                <h2 className="event-card__title">{title}</h2>
+                <div className="event-card__actions">
+                    <Button variant="sub">{primaryActionLabel}</Button>
+                    <Button variant="sub">
+                        <span className="event-card__all-events">{secondaryActionLabel}</span>
+                        <span className="event-card__arrow" aria-hidden="true">
+                            <ArrowRight size={14} strokeWidth={3} />
+                        </span>
+                    </Button>
+                </div>
             </div>
         </div>
     );
