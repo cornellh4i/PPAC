@@ -17,6 +17,9 @@ class Resource {
     @prop()
     public file?: string;
 
+    @prop({ type: () => [String], default: [] })
+    public tags!: string[];
+
     @prop({ required: true })
     public createdBy!: ObjectId; // users._id
 

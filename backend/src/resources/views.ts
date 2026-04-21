@@ -68,13 +68,21 @@ resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
 })
 
 resourceRouter.post("/", async (req, res) => {
-  const { title, type, description, link, file, createdBy } = req.body;
+  const { title, type, description, link, file, createdBy, tags } = req.body;
   if (!title || !type || !description || !link || !createdBy) {
     res.status(400).send(errorJson("Missing a required field"));
     return;
   }
   try {
-    const resource = await resourceControllers.addResource({ title, type, description, link, file, createdBy});
+    const resource = await resourceControllers.addResource({
+      title,
+      type,
+      description,
+      link,
+      file,
+      tags,
+      createdBy,
+    });
     res.status(201).send(successJson(resource));
   } catch (error) {
     res.status(400).send(errorJson("Failed to create resource"));
