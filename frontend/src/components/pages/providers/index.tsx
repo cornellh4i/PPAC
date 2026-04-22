@@ -118,21 +118,23 @@ const Providers: React.FC = () => {
           />
         </div>
 
-        <button type="button" className="providers__filterIcon" aria-label="Filter providers">
-          <Funnel size={16} aria-hidden="true" />
-        </button>
+        <div className="providers__filters">
+          <button type="button" className="providers__filterIcon" aria-label="Filter providers">
+            <Funnel size={16} aria-hidden="true" />
+          </button>
 
-        <div className="providers__chips" role="group" aria-label="Provider filters">
-          {PROVIDER_FILTERS.map((filter) => (
-            <button
-              key={filter}
-              type="button"
-              className={`providers__chip ${selectedFilter === filter ? "providers__chip--active" : ""}`}
-              onClick={() => setSelectedFilter(filter)}
-            >
-              {filter}
-            </button>
-          ))}
+          <div className="providers__chips" aria-label="Provider filters">
+            {PROVIDER_FILTERS.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                className={`providers__chip ${selectedFilter === filter ? "providers__chip--active" : ""}`}
+                onClick={() => setSelectedFilter(filter)}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
