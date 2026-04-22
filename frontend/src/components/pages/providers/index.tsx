@@ -1,4 +1,6 @@
 import ProviderCard, { ProviderCardProps } from "../../molecules/ProviderCard/ProviderCard";
+import { Search, Funnel } from "lucide-react";
+import { useState } from "react";
 import "./Providers.scss";
 
 const DUMMY_PROVIDERS: ProviderCardProps[] = [
@@ -85,10 +87,55 @@ const DUMMY_PROVIDERS: ProviderCardProps[] = [
   },
 ];
 
+const PROVIDER_FILTERS = [
+  "All",
+  "Reproductive Health",
+  "Counseling & Psychology",
+  "General Medicine",
+];
+
 const Providers: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("All");
+
   return (
     <div className="providers">
-      <h1 className="providers__title">Find a Provider</h1>
+      <h1 className="providers__title">Ithaca Providers</h1>
+      <h2 className="providers__subtitle">
+        Verified local healthcare providers who understand the needs of the student
+        community.
+      </h2>
+
+      <div className="providers__controls">
+        <div className="providers__search">
+          <Search size={16} aria-hidden="true" />
+          <input
+            type="text"
+            placeholder="Find the provider"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            aria-label="Search providers"
+          />
+        </div>
+
+        <button type="button" className="providers__filterIcon" aria-label="Filter providers">
+          <Funnel size={16} aria-hidden="true" />
+        </button>
+
+        <div className="providers__chips" role="group" aria-label="Provider filters">
+          {PROVIDER_FILTERS.map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              className={`providers__chip ${selectedFilter === filter ? "providers__chip--active" : ""}`}
+              onClick={() => setSelectedFilter(filter)}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="providers__grid">
         {DUMMY_PROVIDERS.map((provider) => (
           <div key={provider.name} className="providers__card">
