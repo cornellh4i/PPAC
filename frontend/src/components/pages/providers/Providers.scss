@@ -37,21 +37,24 @@
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  color: #4d4d4d;
+
+  svg {
+    color: #4d4d4d;
+    flex-shrink: 0;
+  }
 
   input {
     border: 0;
     outline: 0;
     background: transparent;
     width: 100%;
-    height: 100%;
+    font: inherit;
     font-size: 14px;
     color: #000;
   }
 
   input::placeholder {
     color: #1f1f1f;
-    opacity: 1;
     font-weight: 500;
   }
 }
