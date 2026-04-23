@@ -4,6 +4,7 @@ import userRouter from "./users/views";
 import authRouter from "./auth/views"
 import resourceRouter from "./resources/views";
 import eventRouter from "./events/views";
+import chatbotRouter from "./services/chatbot";
 import swaggerUI from "swagger-ui-express";
 import spec from "../api-spec.json";
 import { dbConnect } from "./database";
@@ -30,6 +31,7 @@ apiRouter.use("/users", userRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/resources", resourceRouter);
 apiRouter.use("/events", eventRouter);
+apiRouter.use("/chat", chatbotRouter);
 
 app.use("/api", apiRouter)
 
