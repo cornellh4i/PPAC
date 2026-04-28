@@ -1,8 +1,7 @@
-import ProviderCard from "../../molecules/ProviderCard/ProviderCard";
 import EventCard from "../../molecules/EventCard/EventCard";
 import "./community.scss";
 
-const Community: React.FC = () => {
+const Team: React.FC = () => {
   return (
     <div className="community">
       <EventCard
@@ -12,4 +11,4 @@ const Community: React.FC = () => {
   );
 };
 
-export default Community;
+export default Team;

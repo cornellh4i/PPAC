@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebase/config';
 import Home from './components/pages/home';
-import Community from './components/pages/community';
+import Team from './components/pages/community';
 import Events from './components/pages/events';
 import Resources from './components/pages/resources';
+import StudentStories from './components/pages/student-stories';
 import RootLayout from './components/layouts/rootlayout';
 import Providers from './components/pages/providers';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -35,7 +36,8 @@ const App: React.FC = () => {
       element: <RootLayout />,
       children: [
         { index: true, element: <Home /> },
-        { path: 'community', element: <Community /> },
+        { path: 'team', element: <Team /> },
+        { path: 'student-stories', element: <StudentStories /> },
         { path: 'events', element: <Events /> },
         { path: 'resources', element: <Resources /> },
         { path: 'providers', element: <Providers /> }
