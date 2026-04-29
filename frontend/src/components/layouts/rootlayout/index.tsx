@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from '../../organisms/NavBar/NavBar';
+import ChatWidget from '../../organisms/ChatWidget/ChatWidget';
 
 const RootLayout: React.FC = () => {
 
@@ -7,6 +8,7 @@ const RootLayout: React.FC = () => {
         <>
             <NavBar />
             <main>
+                <ChatWidget/>
                 <Outlet />
             </main>
         </>
