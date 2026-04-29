@@ -1,3 +1,9 @@
 NODE_ENV = "[insert here]"
 DEV_URI = "[insert here]"
 PROD_URI = "[insert here]"
+
+# Mailgun (contact form)
+MG_API_KEY = "[private API key]"
+MG_SANDBOX_DOMAIN = "[e.g. sandboxxxxx.mailgun.org]"
+MG_BASE_URL = "[optional: https://api.mailgun.net or https://api.eu.mailgun.net]"
+MG_SENDING_KEY = "[optional: only if you use this instead of MG_API_KEY]"
