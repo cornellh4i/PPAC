@@ -1,14 +1,25 @@
 import OpenAI from "openai";
+import { Router } from "express";
+import { successJson, errorJson } from "../utils/jsonResponses";
 
-const openai = new OpenAI({
+const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-/** TEMPORARY CODE, REPLACE THIS WITH THE ACTUAL CHATBOT FUNCTIONALITY */
-const response = openai.responses.create({
-  model: "gpt-5.4-mini",
-  input: "write a haiku about ai",
-  store: true,
+const chatbotRouter = Router();
+
+chatbotRouter.post("/", async (req, res) => {
+  try {
+    const { messages } = req.body;
+    const response = await client.responses.create({
+      model: "gpt-5-mini",
+      input: messages,
+    });
+    res.status(200).send(successJson({ reply: response.output_text }));
+  } catch (error) {
+    console.error("Chat error:", error);
+    res.status(400).send(errorJson("Failed to get response"));
+  }
 });
 
-response.then((result) => console.log(result.output_text));
+export default chatbotRouter;
