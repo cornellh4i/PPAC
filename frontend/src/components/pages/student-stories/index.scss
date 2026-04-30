@@ -1,0 +1,13 @@
+.student-stories {
+  min-height: calc(100vh - 110px);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .student-stories {
+    padding: 20px;
+  }
+}

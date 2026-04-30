@@ -4,6 +4,7 @@ import userRouter from "./users/views";
 import authRouter from "./auth/views"
 import resourceRouter from "./resources/views";
 import eventRouter from "./events/views";
+import emailRouter from "./emails/views";
 import chatbotRouter from "./services/chatbot";
 import swaggerUI from "swagger-ui-express";
 import spec from "../api-spec.json";
@@ -31,6 +32,7 @@ apiRouter.use("/users", userRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/resources", resourceRouter);
 apiRouter.use("/events", eventRouter);
+apiRouter.use("/email", emailRouter);
 apiRouter.use("/chat", chatbotRouter);
 
 app.use("/api", apiRouter)
