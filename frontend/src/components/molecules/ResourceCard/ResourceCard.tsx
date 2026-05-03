@@ -5,7 +5,7 @@ interface ResourceCardProps {
   type: string;
   tag: string;
   title: string;
-  file: string;
+  file?: string;
   description: string;
 }
 
@@ -20,13 +20,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
     <article className="resource-card">
       <div className="resource-card__pill">{type}</div>
 
-      <div className="resource-card__image-wrapper">
-        <img
-          className="resource-card__image"
-          src={file}
-          alt={title}
-        />
-      </div>
+      {file && (
+        <div className="resource-card__image-wrapper">
+          <img
+            className="resource-card__image"
+            src={file}
+            alt={title}
+          />
+        </div>
+      )}
 
       <div className="resource-card__body">
         <div className="resource-card__copy">
