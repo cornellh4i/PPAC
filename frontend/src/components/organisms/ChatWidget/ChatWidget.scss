@@ -96,4 +96,31 @@
       cursor: not-allowed;
     }
   }
+
+    &__prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border-top: 1px solid #eee;
+  }
+
+  &__prompt {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid #972C52;
+    background: #fff;
+    color: #972C52;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+      background: #FDE0E6;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
 }
