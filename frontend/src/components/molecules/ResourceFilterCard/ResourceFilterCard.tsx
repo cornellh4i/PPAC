@@ -8,6 +8,10 @@ export interface ResourceFilterItem {
 
 interface ResourceFilterCardProps {
   resources: ResourceFilterItem[];
+  selectedMediaTypes: string[];
+  selectedTags: string[];
+  onApply: (mediaTypes: string[], tags: string[]) => void;
+  onClose: () => void;
 }
 
 interface FilterOption {
@@ -30,6 +34,10 @@ const getOptionKey = (group: 'mediaTypes' | 'topics', label: string) =>
 
 const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
   resources,
+  selectedMediaTypes,
+  selectedTags,
+  onApply,
+  onClose,
 }) => {
   const mediaTypeOptions = useMemo(
     () => countOptions(resources, 'mediaType'),
@@ -48,9 +56,12 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
     ],
     [mediaTypeOptions, topicOptions]
   );
-  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(
-    () => new Set()
-  );
+  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(() => {
+    return new Set([
+      ...selectedMediaTypes.map((type) => getOptionKey('mediaTypes', type)),
+      ...selectedTags.map((tag) => getOptionKey('topics', tag)),
+    ]);
+  });
 
   const toggleOption = (optionKey: string) => {
     setSelectedOptions((currentOptions) => {
@@ -72,6 +83,19 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
 
   const handleReset = () => {
     setSelectedOptions(new Set());
+  };
+
+  const handleApply = () => {
+    onApply(
+      mediaTypeOptions
+        .map((option) => option.label)
+        .filter((label) =>
+          selectedOptions.has(getOptionKey('mediaTypes', label))
+        ),
+      topicOptions
+        .map((option) => option.label)
+        .filter((label) => selectedOptions.has(getOptionKey('topics', label)))
+    );
   };
 
   const renderOption = (
@@ -104,6 +128,7 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
         className="resource-filter-card__close"
         type="button"
         aria-label="Close filters"
+        onClick={onClose}
       />
 
       <div className="resource-filter-card__header">
@@ -132,7 +157,11 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
         </div>
       </section>
 
-      <button className="resource-filter-card__apply" type="button">
+      <button
+        className="resource-filter-card__apply"
+        type="button"
+        onClick={handleApply}
+      >
         Apply
       </button>
     </aside>
