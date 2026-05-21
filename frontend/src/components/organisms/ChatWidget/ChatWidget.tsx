@@ -15,6 +15,13 @@ const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
 
+  const prompts = [
+  "I want resources on period cramps",
+  "I want mental health resources",
+  "I want to contact the admin",
+  "I’m looking for events",
+  ];
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -31,8 +38,8 @@ const ChatWidget: React.FC = () => {
     };
   }, [isOpen]);
 
-  const sendMessage = async () => {
-    const trimmed = input.trim();
+  const sendMessage = async (messageText?: string) => {
+    const trimmed = (messageText || input).trim();
     if (!trimmed || loading) return;
 
     const updated: Message[] = [...messages, { role: "user", content: trimmed }];
@@ -76,6 +83,20 @@ const ChatWidget: React.FC = () => {
             {loading && <div className="chat-widget__thinking">Thinking...</div>}
           </div>
 
+          <div className="chat-widget__prompts">
+          {prompts.map((prompt) => (
+            <button
+              key={prompt}
+              className="chat-widget__prompt"
+              onClick={() => sendMessage(prompt)}
+              disabled={loading}
+              type="button"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+
           <div className="chat-widget__input-row">
             <input
               className="chat-widget__input"
@@ -86,7 +107,7 @@ const ChatWidget: React.FC = () => {
             />
             <button
               className="chat-widget__send"
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={loading}
               type="button"
             >
