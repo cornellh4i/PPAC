@@ -6,6 +6,7 @@ interface ButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   variant?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 function Button({
@@ -13,10 +14,11 @@ function Button({
   onClick,
   variant = "primary",
   disabled = false,
+  className = "",
 }: ButtonProps) {
   return (
     <button
-      className={`button button--${variant}`}
+      className={`button button--${variant} ${className}`.trim()}
       onClick={(e) => onClick?.(e)}
       disabled={disabled}
     >

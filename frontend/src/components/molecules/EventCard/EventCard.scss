@@ -23,8 +23,8 @@
 
 .event-card__title {
   margin: 0 0 14px;
-  font-size: 34px;
-  font-weight: 500;
+  font-size: var(--font-size-subheading);
+  font-weight: var(--font-weight-regular);
   line-height: 1.05;
 }
 

@@ -21,7 +21,8 @@ const countOptions = (
 ): FilterOption[] => {
   const counts = resources.reduce<Record<string, number>>((total, resource) => {
     total[resource[key]] = (total[resource[key]] ?? 0) + 1;
-    return total;}, {});
+    return total;
+  }, {});
   return Object.entries(counts).map(([label, count]) => ({ label, count }));
 };
 
@@ -107,7 +108,7 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
       />
 
       <div className="resource-filter-card__header">
-        <h2 className="resource-filter-card__title">Filters</h2>
+        <h3 className="resource-filter-card__title">Filters</h3>
         <div className="resource-filter-card__actions">
           <button type="button" onClick={handleSelectAll}>
             Select all

@@ -12,7 +12,7 @@
     color: #fff;
     border: none;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: var(--font-weight-regular);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
@@ -31,7 +31,7 @@
   &__header {
     padding: 8px 12px;
     border-bottom: 1px solid #eee;
-    font-weight: 600;
+    font-weight: var(--font-weight-regular);
   }
 
   &__messages {
@@ -65,7 +65,7 @@
   &__thinking {
     align-self: flex-start;
     color: #999;
-    font-size: 13px;
+    font-size: var(--font-size-body);
   }
 
   &__input-row {

@@ -36,74 +36,84 @@ const NavBar: React.FC = () => {
                 onClick={() => navigate('/')}
             />
 
-            <div className="navbar__pill">
-                <ul className="navbar__links">
-                    <li>
-                        <button
-                        type="button"
-                        className={`navbar__link ${location.pathname === '/' ? 'navbar__link--active' : ''}`}
-                        onClick={() => navigate('/')}
-                        >
-                        Home
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                        type="button"
-                        className={`navbar__link ${location.pathname === '/events' ? 'navbar__link--active' : ''}`}
-                        onClick={() => navigate('/events')}
-                        >
-                        Events
-                        </button>
-                    </li>
-                    <li>
-                        <button
-                        type="button"
-                        className={`navbar__link ${location.pathname === '/resources' ? 'navbar__link--active' : ''}`}
-                        onClick={() => navigate('/resources')}
-                        >
-                        Resources
-                        </button>
-                    </li>
-                    <li
-                        className={`navbar__dropdown ${isCommunityOpen ? 'navbar__dropdown--open' : ''}`}
-                        ref={communityRef}
-                    >
-                        <button
-                            type="button"
-                            className={`navbar__link navbar__dropdown-toggle ${isCommunityActive ? 'navbar__link--active' : ''}`}
-                            onClick={() => setIsCommunityOpen((prev) => !prev)}
-                            aria-expanded={isCommunityOpen}
-                            aria-haspopup="menu"
-                        >
-                            Community
-                        </button>
-
-                        <div className="navbar__dropdown-menu" role="menu">
+            <div className="navbar__inner">
+                <div className="navbar__pill">
+                    <ul className="navbar__links">
+                        <li>
                             <button
                                 type="button"
-                                className={`navbar__dropdown-item ${location.pathname === '/team' ? 'navbar__dropdown-item--active' : ''}`}
-                                onClick={() => navigate('/team')}
-                                role="menuitem"
+                                className={`navbar__link ${location.pathname === '/' ? 'navbar__link--active' : ''}`}
+                                onClick={() => navigate('/')}
                             >
-                                Team
+                                Home
                             </button>
+                        </li>
+                        <li>
                             <button
                                 type="button"
-                                className={`navbar__dropdown-item ${location.pathname === '/student-stories' ? 'navbar__dropdown-item--active' : ''}`}
-                                onClick={() => navigate('/student-stories')}
-                                role="menuitem"
+                                className={`navbar__link ${location.pathname === '/events' ? 'navbar__link--active' : ''}`}
+                                onClick={() => navigate('/events')}
                             >
-                                Student Stories
+                                Events
                             </button>
-                        </div>
-                    </li>
-                </ul>
+                        </li>
+                        <li>
+                            <button
+                                type="button"
+                                className={`navbar__link ${location.pathname === '/resources' ? 'navbar__link--active' : ''}`}
+                                onClick={() => navigate('/resources')}
+                            >
+                                Resources
+                            </button>
+                        </li>
+                        <li
+                            className={`navbar__dropdown ${isCommunityOpen ? 'navbar__dropdown--open' : ''}`}
+                            ref={communityRef}
+                        >
+                            <button
+                                type="button"
+                                className={`navbar__link navbar__dropdown-toggle ${isCommunityActive ? 'navbar__link--active' : ''}`}
+                                onClick={() => setIsCommunityOpen((prev) => !prev)}
+                                aria-expanded={isCommunityOpen}
+                                aria-haspopup="menu"
+                            >
+                                Community
+                                <span
+                                    className={`navbar__dropdownArrow ${isCommunityOpen ? 'navbar__dropdownArrow--open' : ''}`}
+                                    aria-hidden="true"
+                                />
+                            </button>
 
-                <Button variant="rounded" onClick={() => navigate('/providers')}>
-                    Find a Provider
-                </Button>
+                            <div className="navbar__dropdown-menu" role="menu">
+                                <button
+                                    type="button"
+                                    className={`navbar__dropdown-item ${location.pathname === '/team' ? 'navbar__dropdown-item--active' : ''}`}
+                                    onClick={() => navigate('/team')}
+                                    role="menuitem"
+                                >
+                                    Team
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`navbar__dropdown-item ${location.pathname === '/student-stories' ? 'navbar__dropdown-item--active' : ''}`}
+                                    onClick={() => navigate('/student-stories')}
+                                    role="menuitem"
+                                >
+                                    Student Stories
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
+
+            <Button
+                variant="rounded"
+                className="navbar__providerButton"
+                onClick={() => navigate('/providers')}
+            >
+                Find a Provider
+            </Button>
         </nav>
     );
 };

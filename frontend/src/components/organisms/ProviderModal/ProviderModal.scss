@@ -20,6 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  font-family: var(--font-body);
 }
 
 /* Header */
@@ -54,17 +55,17 @@
 }
 
 .providerModal__name {
-  font-size: 24px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-subheading);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-heading);
   margin: 0;
   line-height: 1;
 }
 
 .providerModal__field {
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   margin: 0;
 }
 
@@ -72,9 +73,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
 }
 
 /* Info Grid */
@@ -103,16 +104,16 @@
 }
 
 .providerModal__label {
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   margin: 0;
 }
 
 .providerModal__value {
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   margin: 0;
 }
 
@@ -126,9 +127,9 @@
   background: #d4d4d8;
   padding: 0 10px;
   border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
 }
 
 /* Sections */
@@ -139,16 +140,16 @@
 }
 
 .providerModal__sectionLabel {
-  font-size: 16px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   margin: 0;
 }
 
 .providerModal__sectionText {
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   margin: 0;
 }
 
@@ -159,9 +160,9 @@
   background: #d4d4d8;
   border: none;
   border-radius: 10px;
-  font-size: 20px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-body);
   cursor: pointer;
   text-align: center;
 

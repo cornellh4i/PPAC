@@ -27,8 +27,8 @@
   border: 1px solid #f9d4dc;
   border-radius: 24px;
   background: #fde0e6;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
   line-height: 1;
 }
 
@@ -69,15 +69,15 @@
 
 .resource-card__title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 400;
+  font-size: var(--font-size-subheading);
+  font-weight: var(--font-weight-regular);
   line-height: 1;
 }
 
 .resource-card__description {
   margin: 0;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
   line-height: 1;
 }
 
@@ -99,7 +99,7 @@
   background: transparent;
   color: rgba(0, 0, 0, 0.5);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--font-size-body);
   line-height: 1;
   text-decoration: underline;
   text-underline-offset: 2px;

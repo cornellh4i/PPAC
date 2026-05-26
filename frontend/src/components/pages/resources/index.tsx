@@ -1,4 +1,4 @@
-import ResourceCard from '../../molecules/ResourceCard/ResourceCard';
+
 import ResourceFilterCard, {
   ResourceFilterItem,
 } from '../../molecules/ResourceFilterCard/ResourceFilterCard';
@@ -45,7 +45,6 @@ const Resources: React.FC = () => {
   return (
     <div className="resources">
       <ResourceFilterCard resources={filterResources} />
-      <ResourceCard {...resourceTest} />
     </div>
   );
 };
