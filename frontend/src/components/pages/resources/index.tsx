@@ -139,16 +139,6 @@ const Resources: React.FC = () => {
           <section>
             {!loading && !error && visibleResources.length > 0 && (
               <div className="resources__grid">
-                {visibleResources.map((resource) => (
-                  <ResourceCard
-                    key={resource._id}
-                    type={resource.type}
-                    tag={resource.tags?.[0] || 'Resource'}
-                    title={resource.title}
-                    file={resource.file}
-                    description={resource.description}
-                  />
-                ))}
               </div>
             )}
           </section>
