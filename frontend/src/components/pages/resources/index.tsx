@@ -1,125 +1,133 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 
-import ResourceFilterCard from '../../molecules/ResourceFilterCard/ResourceFilterCard';
-import './index.scss';
+import ResourceFilterCard from "../../molecules/ResourceFilterCard/ResourceFilterCard";
+import ResourceCard from "../../molecules/ResourceCard/ResourceCard";
+import "./index.scss";
+import { RESOURCES, Resource } from '../../../resources';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-
-interface Resource {
-  _id: string;
-  title: string;
-  type: string;
-  description: string;
-  file?: string;
-  tags?: string[];
-  createdAt?: string;
-}
-
-interface ResourcesResponse {
-  success: boolean;
-  data: Resource[];
-}
+const CATEGORY_PILLS = [
+  { label: "Websites", types: ["website"], color: "#d0f0e8" },
+  { label: "Podcasts", types: ["podcast"], color: "#e8d0f0" },
+  { label: "Books", types: ["book"], color: "#d0e8f0" },
+  {
+    label: "Local Resources",
+    types: ["local resource", "local resources"],
+    color: "#f0e8d0",
+  },
+  { label: "and more...", types: ["informational"], color: "#f0d0d8" },
+];
 
 const Resources: React.FC = () => {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [activePill, setActivePill] = useState<string | null>(null);
+  const [resources, setResources] = useState<Resource[]>(RESOURCES);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/resources`);
-        const result: ResourcesResponse = await response.json();
+  const filterResources = useMemo(() => {
+    return resources.flatMap((resource) => {
+      const tags = resource.tags?.length ? resource.tags : ["Resource"];
+      return tags.map((tag) => ({ mediaType: resource.type, topic: tag }));
+    });
+  }, [resources]);
 
-        if (result.success) {
-          setResources(result.data);
-        }
-      } catch {
-        setError('Unable to load resources.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResources();
-  }, []);
-
-  const filterResources = resources.flatMap((resource) => {
-    const tags = resource.tags?.length ? resource.tags : ['Resource'];
-
-    return tags.map((tag) => ({
-      mediaType: resource.type,
-      topic: tag,
-    }));
-  });
+  // Types currently selected by the pill (null = all)
+  const pillTypes = useMemo(() => {
+    if (!activePill) return null;
+    const pill = CATEGORY_PILLS.find((p) => p.label === activePill);
+    return pill ? new Set(pill.types) : null;
+  }, [activePill]);
 
   const visibleResources = useMemo(() => {
     const normalizedSearch = searchQuery.trim().toLowerCase();
-
     return [...resources]
-      .sort((first, second) => {
-        const firstDate = first.createdAt ? Date.parse(first.createdAt) : 0;
-        const secondDate = second.createdAt ? Date.parse(second.createdAt) : 0;
-
-        return secondDate - firstDate;
+      .sort((a, b) => {
+        const aDate = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const bDate = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return bDate - aDate;
       })
       .filter((resource) => {
         const resourceTags = resource.tags || [];
         const matchesSearch =
           !normalizedSearch ||
           resource.title.toLowerCase().includes(normalizedSearch) ||
-          resource.description.toLowerCase().includes(normalizedSearch);
+          resource.description.toLowerCase().includes(normalizedSearch) ||
+          resourceTags.some((tag) =>
+            tag.toLowerCase().includes(normalizedSearch),
+          );
         const matchesType =
           selectedMediaTypes.length === 0 ||
           selectedMediaTypes.includes(resource.type);
         const matchesTag =
           selectedTags.length === 0 ||
           resourceTags.some((tag) => selectedTags.includes(tag));
-
-        return matchesSearch && matchesType && matchesTag;
+        const matchesPill =
+          !pillTypes || pillTypes.has(resource.type.toLowerCase());
+        return matchesSearch && matchesType && matchesTag && matchesPill;
       });
-  }, [resources, searchQuery, selectedMediaTypes, selectedTags]);
+  }, [resources, searchQuery, selectedMediaTypes, selectedTags, pillTypes]);
+
+  const isEmpty = !loading && visibleResources.length === 0;
+
+  const handlePillClick = (label: string) => {
+    setActivePill((current) => (current === label ? null : label));
+  };
 
   return (
     <div className="resources">
-      <header className="resources__header">
-        <h1 className="resources__title">Published Resources</h1>
-      </header>
-
       <div className="resources__body">
-        <div className="resources__toolbar">
-          <button className="resources__pill-button" type="button">
-            Recents
-          </button>
-
-          <div className="resources__toolbar-actions">
-            <input
-              className="resources__search"
-              type="search"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-            />
-            <button
-              className="resources__filter-button"
-              type="button"
-              onClick={() => setShowFilters((current) => !current)}
-            >
-              <span className="resources__filter-icon" aria-hidden />
-              Filters
-            </button>
+        {/* ── Hero + pills ── */}
+        <div className="resources__hero">
+          <h1 className="resources__title">
+            Curious about pelvic health? Learn more here.
+          </h1>
+          <div className="resources__pills">
+            {CATEGORY_PILLS.map((pill) => (
+              <button
+                key={pill.label}
+                type="button"
+                className={`resources__pill${activePill === pill.label ? " resources__pill--active" : ""}`}
+                style={{ "--pill-color": pill.color } as React.CSSProperties}
+                onClick={() => handlePillClick(pill.label)}
+              >
+                {pill.label}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* ── Search row ── */}
+        <div className="resources__toolbar">
+          <label className="resources__search-label" htmlFor="resources-search">
+            <SearchIcon />
+            <span>Search</span>
+          </label>
+          <input
+            id="resources-search"
+            className="resources__search"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search resources"
+          />
+          <button
+            className="resources__filter-button"
+            type="button"
+            onClick={() => setShowFilters((c) => !c)}
+          >
+            <FilterIcon />
+            Filters
+          </button>
+        </div>
+
+        {/* ── Content ── */}
         <div
           className={
             showFilters
-              ? 'resources__content'
-              : 'resources__content resources__content--cards-only'
+              ? "resources__content"
+              : "resources__content resources__content--list-only"
           }
         >
           {showFilters && (
@@ -136,21 +144,118 @@ const Resources: React.FC = () => {
             />
           )}
 
-          <section>
-            {!loading && !error && visibleResources.length > 0 && (
-              <div className="resources__grid">
+          <section aria-label="Resources list">
+            {loading && <p className="resources__status">Loading resources…</p>}
+
+            {isEmpty && (
+              <div className="resources__empty">
+                <svg
+                  width="56"
+                  height="56"
+                  viewBox="0 0 56 56"
+                  fill="none"
+                  aria-hidden
+                >
+                  <rect
+                    x="10"
+                    y="6"
+                    width="36"
+                    height="44"
+                    rx="3"
+                    stroke="#c8c8c8"
+                    strokeWidth="2"
+                  />
+                  <circle cx="22" cy="30" r="2" fill="#c8c8c8" />
+                  <circle cx="34" cy="30" r="2" fill="#c8c8c8" />
+                  <path
+                    d="M22 40 Q28 36 34 40"
+                    stroke="#c8c8c8"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                </svg>
+                <p className="resources__empty-label">
+                  No results found. Try a different search.
+                </p>
+              </div>
+            )}
+
+            {!loading && visibleResources.length > 0 && (
+              <div className="resources__list">
+                {visibleResources.map((resource) => (
+                  <ResourceCard
+                    key={resource._id}
+                    type={resource.type}
+                    tag={resource.tags?.[0] ?? resource.type}
+                    title={resource.title}
+                    file={resource.file}
+                    description={resource.description}
+                    tags={resource.tags}
+                    readAt={resource.readAt}
+                    borrowAt={resource.borrowAt}
+                  />
+                ))}
               </div>
             )}
           </section>
         </div>
 
+        {/* ── Footer ── */}
         <p className="resources__contact">
-          Can’t find what you’re looking for?{' '}
-          <span className="resources__contact-link">Contact us!</span>
+          Can't find what you're looking for?{" "}
+          <a className="resources__contact-link" href="mailto:ppac@cornell.edu">
+            Contact us!
+          </a>{" "}
+          <ExternalIcon />
         </p>
       </div>
     </div>
   );
 };
+
+// ── Icons ─────────────────────────────────────────────────────────────────────
+
+const SearchIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+    <circle cx="8" cy="8" r="5.5" stroke="#000" strokeWidth="1.4" />
+    <path
+      d="M12.5 12.5L16 16"
+      stroke="#000"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const FilterIcon = () => (
+  <svg width="16" height="12" viewBox="0 0 16 12" fill="none" aria-hidden>
+    <path
+      d="M0 1h16M3 6h10M6 11h4"
+      stroke="#000"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const ExternalIcon = () => (
+  <svg
+    style={{ display: "inline", verticalAlign: "middle", marginLeft: 4 }}
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    aria-hidden
+  >
+    <path
+      d="M2 12L12 2M12 2H5M12 2V9"
+      stroke="#000"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 export default Resources;

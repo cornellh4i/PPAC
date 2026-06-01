@@ -2,190 +2,218 @@
 
 .resources {
   min-height: calc(100vh - 64px);
-  background: #fbf3f3;
-  color: #000000;
+  background: var(--Beige-Light, #FFFEFC);
+  color: #000;
   font-family: 'BE Vietnam Pro', sans-serif;
 }
 
-.resources__header {
+.resources__body {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 101px;
-  padding: 24px;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #bebebe;
-  background: #fffdfb;
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.18);
+  width: 1440px;
+  max-width: 100%;
+  padding: 0 50px 50px 50px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
   box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.resources__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  align-self: stretch;
+  padding-top: 40px;
 }
 
 .resources__title {
   margin: 0;
-  font-size: 48px;
+  color: #000;
+  font-family: 'Instrument Serif', serif;
+  font-size: 40px;
+  font-style: normal;
   font-weight: 400;
-  line-height: 1;
-  text-align: center;
+  line-height: normal;
 }
 
-.resources__body {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 40px 50px 96px;
-  box-sizing: border-box;
+.resources__pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.resources__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  background: var(--pill-color, #e0e0e0);
+  font-family: 'BE Vietnam Pro', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
+  transition: opacity 0.15s, border-color 0.15s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &--active {
+    border-color: rgba(0, 0, 0, 0.35);
+    font-weight: 700;
+  }
 }
 
 .resources__toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 36px;
-}
-
-.resources__pill-button,
-.resources__search,
-.resources__filter-button {
-  min-height: 48px;
-  border: 1px solid #000000;
-  border-radius: 28px;
-  background: #eeeeee;
-  color: #000000;
-  font-family: inherit;
-  font-size: 20px;
-}
-
-.resources__pill-button,
-.resources__filter-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.resources__toolbar-actions {
-  display: flex;
+  width: 100%;
+  height: 48px;
   align-items: center;
   gap: 22px;
 }
 
-.resources__search {
-  width: 188px;
-  padding: 10px 18px;
-  border-color: transparent;
-  background: transparent;
-  box-sizing: border-box;
+.resources__search-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 400;
+  color: #000;
+  white-space: nowrap;
+  cursor: text;
 }
 
-.resources__search::placeholder {
-  color: #6d6d6d;
-  opacity: 1;
+.resources__search {
+  flex: 1;
+  max-width: 260px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: #000;
+
+  &::placeholder { color: #999; }
+  &::-webkit-search-cancel-button { display: none; }
 }
 
 .resources__filter-button {
-  gap: 9px;
-}
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 18px;
+  border: 1px solid #d4d4d4;
+  border-radius: 20px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+  cursor: pointer;
+  transition: background 0.15s;
 
-.resources__filter-icon {
-  width: 19px;
-  height: 11px;
-  position: relative;
-}
-
-.resources__filter-icon::before,
-.resources__filter-icon::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  height: 1px;
-  background: #000000;
-}
-
-.resources__filter-icon::before {
-  top: 2px;
-  width: 19px;
-}
-
-.resources__filter-icon::after {
-  top: 8px;
-  width: 11px;
+  &:hover { background: #f5f5f5; }
 }
 
 .resources__content {
   display: grid;
-  grid-template-columns: minmax(280px, 426px) minmax(0, 1fr);
+  grid-template-columns: 300px 1fr;
   gap: 32px;
   align-items: start;
+  align-self: stretch;
+  width: 100%;
+
+  section {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
-.resources__content--cards-only {
-  display: block;
+.resources__content--list-only {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  align-self: stretch;
+  width: 100%;
+
+  section {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
-.resources__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(240px, 1fr));
-  gap: 36px 68px;
+.resources__list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
 }
 
 .resources__status {
   margin: 0;
-  font-size: 20px;
+  font-size: 15px;
+  color: #666;
+}
+
+.resources__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 72px 0;
+  text-align: center;
+  width: 100%;
+}
+
+.resources__empty-label {
+  margin: 0;
+  font-size: 15px;
+  color: #888;
 }
 
 .resources__contact {
-  margin: 72px 0 0;
+  align-self: stretch;
+  margin: 0;
   text-align: center;
-  font-size: 24px;
-  line-height: 1.2;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #000;
 }
 
 .resources__contact-link {
-  color: #000000;
+  color: #000;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-@media (max-width: 1100px) {
-  .resources__grid {
-    grid-template-columns: repeat(2, minmax(240px, 1fr));
-    gap: 32px;
-  }
-}
-
-@media (max-width: 800px) {
-  .resources__body {
-    padding: 32px 24px 72px;
-  }
-
-  .resources__toolbar,
-  .resources__toolbar-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .resources__search {
-    width: 100%;
-    border-color: #000000;
-    background: #eeeeee;
-  }
-
+@media (max-width: 900px) {
   .resources__content {
     grid-template-columns: 1fr;
   }
-
-  .resources__grid {
-    grid-template-columns: 1fr;
-  }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 600px) {
+  .resources__body {
+    padding: 0 24px 40px;
+    gap: 28px;
+  }
+
+  .resources__hero {
+    padding-top: 28px;
+  }
+
   .resources__title {
-    font-size: 34px;
+    font-size: 28px;
   }
 
   .resources__contact {
-    font-size: 20px;
+    font-size: 15px;
   }
 }
