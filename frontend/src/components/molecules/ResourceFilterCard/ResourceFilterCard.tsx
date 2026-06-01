@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Globe, Mic, BookOpen, MapPin, Info, MoreHorizontal, X } from 'lucide-react';
 import './ResourceFilterCard.scss';
 
 export interface ResourceFilterItem {
@@ -19,6 +20,16 @@ interface FilterOption {
   count: number;
 }
 
+const MEDIA_TYPE_ICONS: Record<string, { icon: React.ReactNode; color: string }> = {
+  website:           { icon: <Globe size={14} />,          color: '#d0f0e8' },
+  podcast:           { icon: <Mic size={14} />,            color: '#e8d0f0' },
+  book:              { icon: <BookOpen size={14} />,       color: '#d0e8f0' },
+  'local resource':  { icon: <MapPin size={14} />,         color: '#f0e8d0' },
+  'local resources': { icon: <MapPin size={14} />,         color: '#f0e8d0' },
+  informational:     { icon: <Info size={14} />,           color: '#f0d0d8' },
+  other:             { icon: <MoreHorizontal size={14} />, color: '#e8e8e8' },
+};
+
 const countOptions = (
   resources: ResourceFilterItem[],
   key: keyof ResourceFilterItem
@@ -28,6 +39,18 @@ const countOptions = (
     return total;
   }, {});
   return Object.entries(counts).map(([label, count]) => ({ label, count }));
+};
+
+// Collapse any option with count < 2 into a single "Other" bucket
+const collapseIntoOther = (options: FilterOption[]): FilterOption[] => {
+  const main = options.filter((o) => o.count >= 2);
+  const otherCount = options
+    .filter((o) => o.count < 2)
+    .reduce((sum, o) => sum + o.count, 0);
+  if (otherCount > 0) {
+    main.push({ label: 'other', count: otherCount });
+  }
+  return main;
 };
 
 const getOptionKey = (group: 'mediaTypes' | 'topics', label: string) =>
@@ -40,70 +63,64 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
   onApply,
   onClose,
 }) => {
-  const mediaTypeOptions = useMemo(
+  const rawMediaTypeOptions = useMemo(
     () => countOptions(resources, 'mediaType'),
     [resources]
   );
-  const topicOptions = useMemo(
+  const rawTopicOptions = useMemo(
     () => countOptions(resources, 'topic'),
     [resources]
   );
+
+  const mediaTypeOptions = useMemo(
+    () => collapseIntoOther(rawMediaTypeOptions),
+    [rawMediaTypeOptions]
+  );
+  const topicOptions = useMemo(
+    () => collapseIntoOther(rawTopicOptions),
+    [rawTopicOptions]
+  );
+
   const allOptionKeys = useMemo(
     () => [
-      ...mediaTypeOptions.map((option) =>
-        getOptionKey('mediaTypes', option.label)
-      ),
-      ...topicOptions.map((option) => getOptionKey('topics', option.label)),
+      ...mediaTypeOptions.map((o) => getOptionKey('mediaTypes', o.label)),
+      ...topicOptions.map((o) => getOptionKey('topics', o.label)),
     ],
     [mediaTypeOptions, topicOptions]
   );
-  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(() => {
-    return new Set([
-      ...selectedMediaTypes.map((type) => getOptionKey('mediaTypes', type)),
-      ...selectedTags.map((tag) => getOptionKey('topics', tag)),
-    ]);
-  });
+
+  const [selectedOptions, setSelectedOptions] = useState<Set<string>>(() =>
+    new Set([
+      ...selectedMediaTypes.map((t) => getOptionKey('mediaTypes', t)),
+      ...selectedTags.map((t) => getOptionKey('topics', t)),
+    ])
+  );
 
   const toggleOption = (optionKey: string) => {
-    setSelectedOptions((currentOptions) => {
-      const nextOptions = new Set(currentOptions);
-
-      if (nextOptions.has(optionKey)) {
-        nextOptions.delete(optionKey);
-      } else {
-        nextOptions.add(optionKey);
-      }
-
-      return nextOptions;
+    setSelectedOptions((cur) => {
+      const next = new Set(cur);
+      next.has(optionKey) ? next.delete(optionKey) : next.add(optionKey);
+      return next;
     });
   };
 
-  const handleSelectAll = () => {
-    setSelectedOptions(new Set(allOptionKeys));
-  };
-
-  const handleReset = () => {
-    setSelectedOptions(new Set());
-  };
+  const handleSelectAll = () => setSelectedOptions(new Set(allOptionKeys));
+  const handleReset = () => setSelectedOptions(new Set());
 
   const handleApply = () => {
     onApply(
       mediaTypeOptions
-        .map((option) => option.label)
-        .filter((label) =>
-          selectedOptions.has(getOptionKey('mediaTypes', label))
-        ),
+        .map((o) => o.label)
+        .filter((l) => selectedOptions.has(getOptionKey('mediaTypes', l))),
       topicOptions
-        .map((option) => option.label)
-        .filter((label) => selectedOptions.has(getOptionKey('topics', label)))
+        .map((o) => o.label)
+        .filter((l) => selectedOptions.has(getOptionKey('topics', l)))
     );
   };
 
-  const renderOption = (
-    option: FilterOption,
-    group: 'mediaTypes' | 'topics'
-  ) => {
-    const optionKey = getOptionKey(group, option.label);
+  const renderMediaOption = (option: FilterOption) => {
+    const optionKey = getOptionKey('mediaTypes', option.label);
+    const icon = MEDIA_TYPE_ICONS[option.label.toLowerCase()];
 
     return (
       <label className="resource-filter-card__option" key={optionKey}>
@@ -115,9 +132,34 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
           onChange={() => toggleOption(optionKey)}
         />
         <span className="resource-filter-card__checkbox-mark" aria-hidden />
-        <span className="resource-filter-card__option-label">
-          {option.label}
-        </span>
+        {icon && (
+          <span
+            className="resource-filter-card__type-icon"
+            style={{ background: icon.color }}
+            aria-hidden
+          >
+            {icon.icon}
+          </span>
+        )}
+        <span className="resource-filter-card__option-label">{option.label}</span>
+        <span className="resource-filter-card__count">{option.count}</span>
+      </label>
+    );
+  };
+
+  const renderTopicOption = (option: FilterOption) => {
+    const optionKey = getOptionKey('topics', option.label);
+    return (
+      <label className="resource-filter-card__option resource-filter-card__option--no-icon" key={optionKey}>
+        <input
+          className="resource-filter-card__checkbox"
+          type="checkbox"
+          aria-label={option.label}
+          checked={selectedOptions.has(optionKey)}
+          onChange={() => toggleOption(optionKey)}
+        />
+        <span className="resource-filter-card__checkbox-mark" aria-hidden />
+        <span className="resource-filter-card__option-label">{option.label}</span>
         <span className="resource-filter-card__count">{option.count}</span>
       </label>
     );
@@ -125,36 +167,37 @@ const ResourceFilterCard: React.FC<ResourceFilterCardProps> = ({
 
   return (
     <aside className="resource-filter-card" aria-label="Resource filters">
-      <button
-        className="resource-filter-card__close"
-        type="button"
-        aria-label="Close filters"
-        onClick={onClose}
-      />
 
+      {/* Filters title + close on same row */}
       <div className="resource-filter-card__header">
-        <h3 className="resource-filter-card__title">Filters</h3>
+        <div className="resource-filter-card__title-row">
+          <h3 className="resource-filter-card__title">Filters</h3>
+          <button
+            className="resource-filter-card__close"
+            type="button"
+            aria-label="Close filters"
+            onClick={onClose}
+          >
+            <X size={18} strokeWidth={1.4} />
+          </button>
+        </div>
         <div className="resource-filter-card__actions">
-          <button type="button" onClick={handleSelectAll}>
-            Select all
-          </button>
-          <button type="button" onClick={handleReset}>
-            Reset
-          </button>
+          <button type="button" onClick={handleSelectAll}>Select all</button>
+          <button type="button" onClick={handleReset}>Reset</button>
         </div>
       </div>
 
       <section className="resource-filter-card__group">
         <h3 className="resource-filter-card__group-title">Media type</h3>
         <div className="resource-filter-card__options">
-          {mediaTypeOptions.map((option) => renderOption(option, 'mediaTypes'))}
+          {mediaTypeOptions.map(renderMediaOption)}
         </div>
       </section>
 
       <section className="resource-filter-card__group">
-        <h3 className="resource-filter-card__group-title">Topic</h3>
+        <h3 className="resource-filter-card__group-title">Content</h3>
         <div className="resource-filter-card__options">
-          {topicOptions.map((option) => renderOption(option, 'topics'))}
+          {topicOptions.map(renderTopicOption)}
         </div>
       </section>
 
