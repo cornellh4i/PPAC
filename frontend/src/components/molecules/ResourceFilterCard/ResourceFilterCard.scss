@@ -22,8 +22,6 @@
   }
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
 .resource-filter-card__header {
   display: flex;
   flex-direction: column;
@@ -80,8 +78,6 @@
   cursor: pointer;
 }
 
-// ── Groups ────────────────────────────────────────────────────────────────────
-
 .resource-filter-card__group {
   width: 100%;
   display: flex;
@@ -95,8 +91,6 @@
   gap: 8px;
   width: 100%;
 }
-
-// ── Option rows ───────────────────────────────────────────────────────────────
 
 .resource-filter-card__option {
   display: grid;
@@ -114,8 +108,6 @@
   grid-template-columns: 22px 1fr auto;
 }
 
-// ── Icon bubble ───────────────────────────────────────────────────────────────
-
 .resource-filter-card__type-icon {
   display: inline-flex;
   align-items: center;
@@ -130,8 +122,6 @@
     display: block;
   }
 }
-
-// ── Checkbox ──────────────────────────────────────────────────────────────────
 
 .resource-filter-card__checkbox {
   position: absolute;
@@ -178,8 +168,6 @@
   outline-offset: 3px;
 }
 
-// ── Label / count ─────────────────────────────────────────────────────────────
-
 .resource-filter-card__option-label {
   min-width: 0;
 }
@@ -187,8 +175,6 @@
 .resource-filter-card__count {
   justify-self: end;
 }
-
-// ── Apply button ──────────────────────────────────────────────────────────────
 
 .resource-filter-card__apply {
   box-sizing: border-box;
@@ -207,8 +193,6 @@
   font-weight: 400;
   cursor: pointer;
 }
-
-// ── Responsive ────────────────────────────────────────────────────────────────
 
 @media (max-width: 540px) {
   .resource-filter-card {
