@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import ResourceFilterCard from "../../molecules/ResourceFilterCard/ResourceFilterCard";
 import ResourceCard from "../../molecules/ResourceCard/ResourceCard";
 import "./index.scss";
-import { RESOURCES, Resource } from '../../../resources';
+import { RESOURCES, Resource } from "../../../resources";
 
 const CATEGORY_PILLS = [
   { label: "Websites", types: ["website"], color: "#d0f0e8" },
@@ -100,18 +100,18 @@ const Resources: React.FC = () => {
 
         {/* ── Search row ── */}
         <div className="resources__toolbar">
-          <label className="resources__search-label" htmlFor="resources-search">
+          <div className="resources__search-box">
             <SearchIcon />
-            <span>Search</span>
-          </label>
-          <input
-            id="resources-search"
-            className="resources__search"
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Search resources"
-          />
+            <input
+              id="resources-search"
+              className="resources__search"
+              type="search"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search resources"
+            />
+          </div>
           <button
             className="resources__filter-button"
             type="button"
