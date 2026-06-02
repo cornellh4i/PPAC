@@ -31,7 +31,11 @@
     "dev": "nodemon -r dotenv/config src/index.ts",
     "build": "tsc",
     "test": "jest",
-    "swagger": "ts-node -r dotenv/config src/swagger.ts"
+    "swagger": "ts-node -r dotenv/config src/swagger.ts",
+    "ingest": "ts-node src/scripts/ingestResources.ts",
+    "embed": "ts-node src/scripts/generateEmbeddings.ts",
+    "rebuild-embeddings": "yarn ingest && yarn embed",
+    "clear-embeddings": "ts-node src/scripts/clearEmbeddings.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19"

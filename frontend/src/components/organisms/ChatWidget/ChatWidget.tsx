@@ -8,6 +8,64 @@ type Message = {
   content: string;
 };
 
+const renderMessageContent = (content: string) => {
+  const cleaned = content
+    .replace(/(\[([^\]]+)\]\([^\)]+\))\2/g, "$1")
+    .replace(/(\[([^\]]+)\]\([^\)]+\))\s*https?:\/\/\S+/g, "$1");
+
+  return cleaned.split("\n").map((line, lineIndex, allLines) => {
+    // Tokenize each line into bold, links, and plain text
+    const tokenRegex = /(\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^\)]+)\))/g;
+    const elements: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = tokenRegex.exec(line)) !== null) {
+      // Push any plain text before this match
+      if (match.index > lastIndex) {
+        elements.push(
+          <span key={`text-${lastIndex}`}>
+            {line.slice(lastIndex, match.index)}
+          </span>,
+        );
+      }
+
+      if (match[0].startsWith("**")) {
+        // Bold
+        elements.push(<strong key={`bold-${match.index}`}>{match[2]}</strong>);
+      } else {
+        // Link
+        elements.push(
+          <a
+            key={`link-${match.index}`}
+            href={match[4]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="chat-widget__link"
+          >
+            {match[3]}
+          </a>,
+        );
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Push any remaining plain text after last match
+    if (lastIndex < line.length) {
+      elements.push(
+        <span key={`text-end-${lastIndex}`}>{line.slice(lastIndex)}</span>,
+      );
+    }
+
+    return (
+      <span key={lineIndex} style={{ display: "block", marginBottom: "4px" }}>
+        {elements}
+      </span>
+    );
+  });
+};
+
 const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -16,23 +74,25 @@ const ChatWidget: React.FC = () => {
   const widgetRef = useRef<HTMLDivElement>(null);
 
   const prompts = [
-  "I want resources on period cramps",
-  "I want mental health resources",
-  "I want to contact the admin",
-  "I’m looking for events",
+    "I want resources on period cramps",
+    "I want mental health resources",
+    "I want to contact the admin",
+    "I'm looking for events",
   ];
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
+      if (
+        widgetRef.current &&
+        !widgetRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -42,7 +102,10 @@ const ChatWidget: React.FC = () => {
     const trimmed = (messageText || input).trim();
     if (!trimmed || loading) return;
 
-    const updated: Message[] = [...messages, { role: "user", content: trimmed }];
+    const updated: Message[] = [
+      ...messages,
+      { role: "user", content: trimmed },
+    ];
     setMessages(updated);
     setInput("");
     setLoading(true);
@@ -54,9 +117,15 @@ const ChatWidget: React.FC = () => {
         body: JSON.stringify({ messages: updated }),
       });
       const data = await res.json();
-      setMessages([...updated, { role: "assistant", content: data.data.reply }]);
+      setMessages([
+        ...updated,
+        { role: "assistant", content: data.data.reply },
+      ]);
     } catch {
-      setMessages([...updated, { role: "assistant", content: "Error: could not reach the server." }]);
+      setMessages([
+        ...updated,
+        { role: "assistant", content: "Error: could not reach the server." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -77,25 +146,28 @@ const ChatWidget: React.FC = () => {
                 key={i}
                 className={`chat-widget__message chat-widget__message--${msg.role}`}
               >
-                {msg.content}
+                {/* CHANGED — was {msg.content}, now uses the render helper */}
+                {renderMessageContent(msg.content)}
               </div>
             ))}
-            {loading && <div className="chat-widget__thinking">Thinking...</div>}
+            {loading && (
+              <div className="chat-widget__thinking">Thinking...</div>
+            )}
           </div>
 
           <div className="chat-widget__prompts">
-          {prompts.map((prompt) => (
-            <button
-              key={prompt}
-              className="chat-widget__prompt"
-              onClick={() => sendMessage(prompt)}
-              disabled={loading}
-              type="button"
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
+            {prompts.map((prompt) => (
+              <button
+                key={prompt}
+                className="chat-widget__prompt"
+                onClick={() => sendMessage(prompt)}
+                disabled={loading}
+                type="button"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
 
           <div className="chat-widget__input-row">
             <input

@@ -17,8 +17,8 @@
   }
 
   &__window {
-    width: 320px;
-    height: 420px;
+    width: 340px;
+    height: 500px;
     border: 1px solid #972C52;
     border-radius: 8px;
     background: #fff;
@@ -48,6 +48,8 @@
     border-radius: 8px;
     max-width: 80%;
     font-size: 14px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     &--user {
       align-self: flex-end;
@@ -59,6 +61,24 @@
       align-self: flex-start;
       background: #FDE0E6;
       color: #000;
+    }
+  }
+
+  &__link {
+    color: #972C52;
+    text-decoration: underline;
+    font-weight: 600;
+    word-break: break-word;
+
+    &:hover {
+      background: rgba(151, 44, 82, 0.15);
+      border-radius: 3px;
+    }
+
+    // white links inside user bubbles
+    .chat-widget__message--user & {
+      color: #fff;
+      text-decoration: underline;
     }
   }
 
@@ -97,7 +117,7 @@
     }
   }
 
-    &__prompts {
+  &__prompts {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
