@@ -1,32 +1,45 @@
 import { getModelForClass, prop } from "@typegoose/typegoose";
 import { ObjectId } from "mongoose";
 
-class Resource {
-    @prop({ required: true, unique: true })
-    public title!: string;
+class BookLink {
+  @prop({ required: true })
+  public label!: string;
 
-    @prop({ required: true })
-    public type!: "website" | "podcast" | "book" | "video";
-
-    @prop({ required: true })
-    public description!: string;
-
-    @prop({ required: true })
-    public link!: string;
-
-    @prop()
-    public file?: string;
-
-    @prop({ type: () => [String], default: [] })
-    public tags!: string[];
-
-    @prop({ required: true })
-    public createdBy!: ObjectId; // users._id
-
-    @prop({ default: Date.now })
-    public createdAt?: Date;
+  @prop({ required: true })
+  public url!: string;
 }
 
+class Resource {
+  @prop({ required: true, unique: true })
+  public title!: string;
+
+  @prop({ required: true })
+  public type!: "website" | "podcast" | "book" | "local resource" | "informational";
+
+  @prop({ required: true })
+  public description!: string;
+
+  @prop({ default: '' })
+  public link!: string;
+
+  @prop()
+  public file?: string;
+
+  @prop({ type: () => [String], default: [] })
+  public tags!: string[];
+
+  @prop({ type: () => [BookLink], default: [] })
+  public readAt!: BookLink[];
+
+  @prop({ type: () => [BookLink], default: [] })
+  public borrowAt!: BookLink[];
+
+  @prop({ required: true })
+  public createdBy!: ObjectId;
+
+  @prop({ default: Date.now })
+  public createdAt?: Date;
+}
 
 const ResourceModel = getModelForClass(Resource);
 export { Resource, ResourceModel };

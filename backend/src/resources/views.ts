@@ -7,9 +7,9 @@ const resourceRouter = Router();
 
 resourceRouter.get("/", async (req, res) => {
   const queryType = req.query.type as string | undefined;
-  const filter: { type?: "website" | "podcast" | "book" | "video" } = {};
+  const filter: { type?: "website" | "podcast" | "book" | "local resource" | "informational" } = {};
   if (queryType) {
-    filter["type"] = queryType as "website" | "podcast" | "book" | "video";
+    filter["type"] = queryType as "website" | "podcast" | "book" | "local resource" | "informational";
   }
   try {
     const resource = await resourceControllers.getResources(filter);
@@ -23,7 +23,7 @@ resourceRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const resource = await resourceControllers.getResourceById(id);
-    if(resource){
+    if (resource) {
       res.status(200).send(successJson(resource));
     } else {
       res.status(404).send(errorJson("Resource not found"));
@@ -45,8 +45,8 @@ resourceRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
     res.status(200).send(successJson(updatedResource));
   } catch (error) {
     res.status(400).send(errorJson("Failed to update resource"));
-  }})
-
+  }
+});
 
 resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
   try {
@@ -65,10 +65,10 @@ resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
   } catch (error) {
     res.status(400).send(errorJson("Failure to delete resource"));
   }
-})
+});
 
 resourceRouter.post("/", async (req, res) => {
-  const { title, type, description, link, file, createdBy, tags } = req.body;
+  const { title, type, description, link, file, createdBy, tags, readAt, borrowAt } = req.body;
   if (!title || !type || !description || !link || !createdBy) {
     res.status(400).send(errorJson("Missing a required field"));
     return;
@@ -80,7 +80,9 @@ resourceRouter.post("/", async (req, res) => {
       description,
       link,
       file,
-      tags,
+      tags: tags ?? [],
+      readAt: readAt ?? [],
+      borrowAt: borrowAt ?? [],
       createdBy,
     });
     res.status(201).send(successJson(resource));
@@ -88,7 +90,5 @@ resourceRouter.post("/", async (req, res) => {
     res.status(400).send(errorJson("Failed to create resource"));
   }
 });
-
-
 
 export default resourceRouter;
