@@ -60,3 +60,27 @@
 .button--sub:hover {
   filter: brightness(0.96);
 }
+
+.button--outline {
+  background-color: transparent;
+  color: var(--dark-pink);
+  border: 0.75px solid var(--border-accent);
+  border-radius: 40px;
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-body);
+  line-height: 1.2;
+  padding: 12px 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-button);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--dark-pink) 5%, transparent);
+    border-color: var(--dark-pink);
+  }
+}

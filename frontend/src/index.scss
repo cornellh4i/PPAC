@@ -9,12 +9,32 @@
   --font-size-caption: 20px;
   --font-size-body: 14px;
   --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-hero: 65px;
   --dark-pink: #972C52;
   --off-white: #F5F3F1;
   --black: #000000;
   --med-pink: #972C5280;
   --light-pink: #AA316326;
   --background: #FFFAF5;
+  --section-bg: #F4EFE9;
+  --card-bg: #FFFEFC;
+  --card-bg-alt: #FFFDFB;
+  --text-muted: #474747;
+  --text-nav: #575757;
+  --required: #CF0048;
+  --placeholder: #A2A2A2;
+  --input-border: #B8B8B8;
+  --button-text-light: #FFFDFB;
+  --border-accent-soft: rgba(151, 44, 82, 0.35);
+  --border-accent: rgba(151, 44, 82, 0.5);
+  --page-padding-x: 50px;
+  --section-radius: 10px;
+  --card-radius: 9px;
+  --shadow-card: 0 0 2px rgba(200, 200, 200, 0.35);
+  --shadow-button: 0.5px 0.5px 1px rgba(82, 82, 82, 0.15);
+  --shadow-inset-panel: inset 0 1.5px 4px rgba(145, 125, 125, 0.15);
 }
 
 html {
