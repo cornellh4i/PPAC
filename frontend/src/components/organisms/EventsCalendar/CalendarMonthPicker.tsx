@@ -1,3 +1,10 @@
+/**
+ * Modal month/year picker with two scroll-snap columns (iOS-style wheel).
+ *
+ * On confirm, calls onConfirm with the 1st of the selected month/year.
+ * EventsCalendar uses that to set displayMonth and jump weekStart to the
+ * first Monday of that month.
+ */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, X } from "lucide-react";
 import { getYearRange, MONTH_NAMES } from "./calendarUtils";
@@ -10,11 +17,14 @@ interface CalendarMonthPickerProps {
   onClose: () => void;
 }
 
+// Wheel layout: 5 visible rows; the middle row is the selection band.
+// Top/bottom spacers (CENTER_OFFSET) let the first and last items scroll to center.
 const ITEM_HEIGHT = 40;
 const VISIBLE_ROWS = 5;
 const YEAR_RADIUS = 5;
 const CENTER_OFFSET = ((VISIBLE_ROWS - 1) / 2) * ITEM_HEIGHT;
 
+/** Fades items further from the centered selection (visual depth for the wheel). */
 const getItemOpacity = (distance: number): number => {
   if (distance === 0) return 1;
   if (distance === 1) return 0.55;
@@ -23,6 +33,7 @@ const getItemOpacity = (distance: number): number => {
 
 const VIEWPORT_CENTER = (VISIBLE_ROWS * ITEM_HEIGHT) / 2;
 
+/** Maps a list index to the scrollTop that centers that item in the viewport. */
 const getScrollTopForIndex = (index: number): number => index * ITEM_HEIGHT;
 
 const getIndexFromScrollTop = (scrollTop: number, maxIndex: number): number => {
@@ -43,6 +54,13 @@ const PickerSpacer = () => (
   />
 );
 
+/**
+ * Modal dialog with two independently scrollable month/year columns.
+ *
+ * User interaction updates scroll position; the centered row is the selection.
+ * On confirm, `onConfirm` receives `new Date(year, month, 1)` — the parent
+ * (EventsCalendar) uses that to jump the week view to that month.
+ */
 const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
   isOpen,
   initialDate,
@@ -53,7 +71,9 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
   const yearRef = useRef<HTMLDivElement>(null);
   const monthScrollTimeoutRef = useRef<number>();
   const yearScrollTimeoutRef = useRef<number>();
+  // True while scrollToIndex is driving the column — prevents snap handlers from fighting it.
   const programmaticScrollRef = useRef(false);
+  // True briefly after open while columns sync to initialDate — ignores stray scroll events.
   const syncOnOpenRef = useRef(false);
   const programmaticScrollTimeoutRef = useRef<number>();
 
@@ -67,6 +87,7 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
 
   const selectedYearIndex = years.indexOf(selectedYear);
 
+  /** Scroll a column so `index` is centered; sets programmaticScrollRef until scroll settles. */
   const scrollToIndex = useCallback(
     (column: HTMLDivElement | null, index: number, smooth = false) => {
       if (!column) return;
@@ -87,6 +108,7 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
         clearProgrammaticScroll();
       };
 
+      // scrollend is precise; timeout is a fallback for older browsers.
       if ("onscrollend" in column) {
         column.addEventListener("scrollend", onScrollComplete, { once: true });
       } else {
@@ -126,6 +148,7 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
     });
   }, [isOpen, initialDate, years, scrollToIndex]);
 
+  /** After free-scroll ends, snap the column so the nearest item locks to center. */
   const snapMonthColumn = useCallback(
     (column: HTMLDivElement) => {
       const index = getIndexFromScrollTop(
@@ -153,6 +176,7 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
     [years, scrollToIndex],
   );
 
+  // Live-update selection while scrolling
   const handleMonthScroll = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
       const column = event.currentTarget;
@@ -233,6 +257,7 @@ const CalendarMonthPicker: React.FC<CalendarMonthPickerProps> = ({
 
   if (!isOpen) return null;
 
+  // Read scroll position at confirm time
   const handleConfirm = () => {
     const month = monthRef.current
       ? getIndexFromScrollTop(

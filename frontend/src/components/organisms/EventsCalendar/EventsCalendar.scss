@@ -1,3 +1,4 @@
+// Layout constants: day body height (638px) must match GRID_BODY_HEIGHT in calendarUtils.ts
 .events-calendar {
   display: flex;
   flex-direction: column;
@@ -112,7 +113,7 @@
 .events-calendar__time-labels {
   position: relative;
   flex: 1;
-  padding: 0 24px 20px;
+  padding: 0 24px;
 }
 
 .events-calendar__time-label {
@@ -145,7 +146,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 12px 0;
+  height: 74px;
   border-bottom: 1px solid #c4c4c4;
   font-family: var(--font-body);
   font-size: 20px;
@@ -160,7 +161,6 @@
   position: relative;
   flex: 1;
   height: 638px;
-  padding: 10px;
   box-sizing: border-box;
 }
 

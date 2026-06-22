@@ -1,3 +1,12 @@
+/**
+ * Week-view calendar: Monday–Sunday columns with an 8 am–10 pm time grid.
+ *
+ * Accepts the full event list from the parent; filters and plots events for the
+ * visible week. Navigation: prev/next week buttons and a month/year picker that
+ * jumps to the first Monday of the selected month.
+ *
+ * See README.md in this folder for architecture, state, and review notes.
+ */
 import React, { useMemo, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { EventCardEvent } from "../../molecules/EventViewCard/EventCard";
@@ -15,7 +24,7 @@ import {
   getWeekDays,
   isSameDay,
   minutesToPixels,
-  labelIndexTop
+  hourToGridTop,
 } from "./calendarUtils";
 import "./EventsCalendar.scss";
 
@@ -23,9 +32,12 @@ interface EventsCalendarProps {
   events: EventCardEvent[];
 }
 
+/** Layout-ready event: column index plus absolute positioning within the day body. */
 interface PlottedEvent {
   event: EventCardEvent;
+  /** 0 = Monday … 6 = Sunday (see getWeekDays) */
   dayIndex: number;
+  /** px from top of `.events-calendar__day-body` */
   top: number;
   height: number;
   isAllDay: boolean;
@@ -40,12 +52,17 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
 
   const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
   const [selectedDate, setSelectedDate] = useState(() => new Date(today));
+  const [displayMonth, setDisplayMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [pickerOpen, setPickerOpen] = useState(false);
 
 
   const weekDays = useMemo(() => getWeekDays(weekStart), [weekStart]);
   const referenceMonth = weekStart.getMonth();
 
+  // Events whose startTime falls in [weekStart, weekStart + 7 days).
   const weekEvents = useMemo(() => {
     const weekEnd = addDays(weekStart, 7);
     return events.filter((event) => {
@@ -54,6 +71,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
     });
   }, [events, weekStart]);
 
+  // Convert filtered events to absolute top/height for each day column.
   const plottedEvents = useMemo((): PlottedEvent[] => {
     const result: PlottedEvent[] = [];
 
@@ -74,16 +92,17 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
       }
 
       const top = minutesToPixels(getMinutesFromGridStart(start));
+      // Default 1 h duration when endTime is null (matches EventCard).
       const end = event.endTime
         ? new Date(event.endTime)
         : new Date(start.getTime() + 60 * 60 * 1000);
       const durationMinutes = Math.max(
         (end.getTime() - start.getTime()) / 60000,
-        30,
+        0,
       );
       const height = Math.max(
         minutesToPixels(Math.min(durationMinutes, GRID_TOTAL_MINUTES)),
-        24,
+        16,
       );
 
       result.push({ event, dayIndex, top, height, isAllDay: false });
@@ -93,16 +112,25 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
   }, [weekDays, weekEvents]);
 
   const handlePrevWeek = () => {
-    setWeekStart((current) => addDays(current, -7));
+    setWeekStart((current) => {
+      const next = addDays(current, -7);
+      setDisplayMonth(new Date(next.getFullYear(), next.getMonth(), 1));
+      return next;
+    });
   };
 
   const handleNextWeek = () => {
-    setWeekStart((current) => addDays(current, 7));
+    setWeekStart((current) => {
+      const next = addDays(current, 7);
+      setDisplayMonth(new Date(next.getFullYear(), next.getMonth(), 1));
+      return next;
+    });
   };
 
+  // Jump to the week containing the 1st of the chosen month (week anchor = that month's first Monday).
   const handlePickerConfirm = (date: Date) => {
-    const monday = getFirstMondayOfMonth(date.getFullYear(), date.getMonth());
-    setWeekStart(monday);
+    setDisplayMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    setWeekStart(getFirstMondayOfMonth(date.getFullYear(), date.getMonth()));
     setSelectedDate(new Date(date.getFullYear(), date.getMonth(), 1));
     setPickerOpen(false);
   };
@@ -136,7 +164,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
             className="events-calendar__month-btn"
             onClick={() => setPickerOpen(true)}
           >
-            <span>{formatMonthYear(weekStart)}</span>
+            <span>{formatMonthYear(displayMonth)}</span>
             <ChevronDown size={10} strokeWidth={2} />
           </button>
         </div>
@@ -148,12 +176,12 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
             <div className="events-calendar__time-col">
               <div className="events-calendar__time-header" aria-hidden="true" />
               <div className="events-calendar__time-labels">
-                {HOUR_LABELS.map((hour, index) => (
+                {HOUR_LABELS.map((hour) => (
                   <span
                     key={hour}
                     className="events-calendar__time-label"
                     style={{
-                      top: `${labelIndexTop(index)}px`,
+                      top: `${hourToGridTop(hour)}px`,
                     }}
                   >
                     {formatHourLabel(hour)}
@@ -219,7 +247,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
 
       <CalendarMonthPicker
         isOpen={pickerOpen}
-        initialDate={weekStart}
+        initialDate={displayMonth}
         onConfirm={handlePickerConfirm}
         onClose={() => setPickerOpen(false)}
       />

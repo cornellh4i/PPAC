@@ -78,9 +78,14 @@
   background: #e7e7e7;
 }
 
+.event-card__image-photo,
 .event-card__image-fallback {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+}
+
+.event-card__image-fallback {
   background: #e7e7e7;
 }
 

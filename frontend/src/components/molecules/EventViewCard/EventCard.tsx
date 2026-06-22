@@ -1,7 +1,12 @@
+/**
+ * Card for a single event on the Events page (upcoming/past lists).
+ * Also exports EventCardEvent — the shared event shape used by EventsCalendar.
+ */
 import React from "react";
 import "./EventCard.scss";
 import { Calendar, MapPin } from "lucide-react";
 
+/** Event payload from the API / mock data. Shared with EventsCalendar. */
 export interface EventCardEvent {
   _id: string;
   title: string;
@@ -9,6 +14,8 @@ export interface EventCardEvent {
   startTime: string;
   endTime: string | null;
   allDay: boolean;
+  /** Public URL or path under /public (e.g. /images/events/photo.png) */
+  imageUrl?: string | null;
   location: {
     type: string;
     venue: string;
@@ -35,6 +42,11 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
+/**
+ * Human-readable date for the card meta row.
+ * All-day: "June 22nd, 2026". 
+ * Timed: "June 22nd, 2026, 3pm"
+ */
 const formatEventDate = (event: EventCardEvent): string => {
   const start = new Date(event.startTime);
   const month = start.toLocaleString("en-US", { month: "long" });
@@ -57,6 +69,10 @@ const formatEventDate = (event: EventCardEvent): string => {
   return `${month} ${day}${getOrdinalSuffix(day)}, ${year}, ${timeStr}`;
 };
 
+/**
+ * Google Calendar "create event" URL pre-filled from event fields.
+ * Uses endTime when present; otherwise assumes a 1-hour duration (same as EventsCalendar).
+ */
 const buildCalendarUrl = (event: EventCardEvent): string => {
   const start = new Date(event.startTime);
   const end = event.endTime
@@ -77,6 +93,7 @@ const buildCalendarUrl = (event: EventCardEvent): string => {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 };
 
+/** Display string for location; falls back to "TBA" when all fields are empty. */
 const formatLocation = (event: EventCardEvent): string => {
   const { location } = event;
   if (location.venue) return location.venue;
@@ -85,6 +102,7 @@ const formatLocation = (event: EventCardEvent): string => {
   return "TBA";
 };
 
+/** Renders title, date, location, description, and an "Add to calendar" link. */
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
   return (
     <article className="event-card">
@@ -123,8 +141,16 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         </a>
       </div>
 
-      <div className="event-card__image" aria-hidden="true">
-        <div className="event-card__image-fallback" />
+      <div className="event-card__image">
+        {event.imageUrl ? (
+          <img
+            src={event.imageUrl}
+            alt={`${event.title} event`}
+            className="event-card__image-photo"
+          />
+        ) : (
+          <div className="event-card__image-fallback" aria-hidden="true" />
+        )}
       </div>
 
       {event.description && (
