@@ -4,8 +4,6 @@
  * Accepts the full event list from the parent; filters and plots events for the
  * visible week. Navigation: prev/next week buttons and a month/year picker that
  * jumps to the first Monday of the selected month.
- *
- * See README.md in this folder for architecture, state, and review notes.
  */
 import React, { useMemo, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -57,7 +55,6 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [pickerOpen, setPickerOpen] = useState(false);
-
 
   const weekDays = useMemo(() => getWeekDays(weekStart), [weekStart]);
   const referenceMonth = weekStart.getMonth();
@@ -174,7 +171,10 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
         <div className="events-calendar__grid-scroll">
           <div className="events-calendar__grid">
             <div className="events-calendar__time-col">
-              <div className="events-calendar__time-header" aria-hidden="true" />
+              <div
+                className="events-calendar__time-header"
+                aria-hidden="true"
+              />
               <div className="events-calendar__time-labels">
                 {HOUR_LABELS.map((hour) => (
                   <span
