@@ -14,7 +14,6 @@ export interface EventCardEvent {
   startTime: string;
   endTime: string | null;
   allDay: boolean;
-  /** Public URL or path under /public (e.g. /images/events/photo.png) */
   imageUrl?: string | null;
   location: {
     type: string;
@@ -44,7 +43,7 @@ const getOrdinalSuffix = (day: number): string => {
 
 /**
  * Human-readable date for the card meta row.
- * All-day: "June 22nd, 2026". 
+ * All-day: "June 22nd, 2026".
  * Timed: "June 22nd, 2026, 3pm"
  */
 const formatEventDate = (event: EventCardEvent): string => {
