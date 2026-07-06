@@ -7,6 +7,23 @@
 
 ## Contributors
 
+### Summer 2026
+- Technical Lead
+  - Grace Matsuoka
+- Project Manager
+  - Adya Uppal
+- Developers
+  - Ayan Kohli
+  - Samantha Cruz
+  - Andrew Zhang
+  - Maia Schlesiger
+  - Lauren Chin
+  - Alanna Yang
+- Designers
+  - Maia Schlesiger
+  - Lauren Chin
+  - Alanna Yang
+
 ### Spring 2026
 
 - Technical Lead
