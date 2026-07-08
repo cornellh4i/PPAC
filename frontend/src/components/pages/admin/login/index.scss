@@ -1,0 +1,97 @@
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background);
+  font-family: var(--font-body);
+
+  &__card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__logo-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: #972c52;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 22px;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--black);
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0;
+  }
+
+  &__error {
+    font-size: 13px;
+    color: var(--required);
+    text-align: center;
+    margin: 0;
+  }
+
+  &__google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 20px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: #fff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    margin-top: 8px;
+
+    &:hover:not(:disabled) {
+      background-color: #f8f8f8;
+      border-color: #999;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__google-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}

@@ -7,7 +7,13 @@ import Events from './components/pages/events';
 import Resources from './components/pages/resources';
 import StudentStories from './components/pages/student-stories';
 import RootLayout from './components/layouts/rootlayout';
+import AdminLayout from './components/layouts/adminlayout';
 import Providers from './components/pages/providers';
+import AdminLogin from './components/pages/admin/login';
+import AdminHome from './components/pages/admin/home';
+import AdminEvents from './components/pages/admin/events';
+import AdminResources from './components/pages/admin/resources';
+import AdminCommunity from './components/pages/admin/community';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const App: React.FC = () => {
@@ -41,6 +47,20 @@ const App: React.FC = () => {
         { path: 'events', element: <Events /> },
         { path: 'resources', element: <Resources /> },
         { path: 'providers', element: <Providers /> }
+      ]
+    },
+    {
+      path: '/admin/login',
+      element: <AdminLogin />
+    },
+    {
+      path: '/admin',
+      element: <AdminLayout />,
+      children: [
+        { index: true, element: <AdminHome /> },
+        { path: 'events', element: <AdminEvents /> },
+        { path: 'resources', element: <AdminResources /> },
+        { path: 'community', element: <AdminCommunity /> }
       ]
     }
   ])

@@ -1,0 +1,67 @@
+.admin-sidebar {
+  width: 240px;
+  height: 100vh;
+  background-color: #972c52;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px;
+  flex-shrink: 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px;
+    margin-bottom: 32px;
+  }
+
+  &__logo-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #972c52;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: var(--font-body);
+  }
+
+  &__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__link {
+    width: 100%;
+    color: #fff;
+    font-size: 14px;
+    font-family: var(--font-body);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover:not(&--active) {
+      background-color: #ffffff14;
+    }
+
+    &--active {
+      font-weight: 700;
+      background-color: #ffffff24;
+    }
+  }
+}

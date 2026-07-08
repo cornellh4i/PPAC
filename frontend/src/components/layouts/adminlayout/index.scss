@@ -1,0 +1,21 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+
+  &__content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    background-color: var(--background);
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+}

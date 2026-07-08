@@ -42,6 +42,17 @@ html {
   background-color: var(--background);
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+}
+
 [class*='subtitle'],
 [class*='label'],
 [class*='field'],
