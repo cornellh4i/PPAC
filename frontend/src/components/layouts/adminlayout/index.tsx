@@ -11,13 +11,15 @@ const AdminLayout: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) {
+    const firebaseAuth = auth;
+
+    if (!firebaseAuth) {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
       if (currentUser && !isAllowedAdminEmail(currentUser.email)) {
-        void signOut(auth!).finally(() => {
+        void signOut(firebaseAuth).finally(() => {
           setUser(null);
           setLoading(false);
         });
@@ -33,9 +35,20 @@ const AdminLayout: React.FC = () => {
   if (loading) return <div className="admin-layout__loading">Loading...</div>;
   if (!user) return <Navigate to="/admin/login" replace />;
 
+  const handleLogout = () => {
+    const firebaseAuth = auth;
+
+    if (!firebaseAuth) {
+      return;
+    }
+
+    void signOut(firebaseAuth);
+    setUser(null);
+  };
+
   return (
     <div className="admin-layout">
-      <AdminSidebar />
+      <AdminSidebar email={user.email} onLogout={handleLogout} />
       <main className="admin-layout__content">
         <Outlet />
       </main>

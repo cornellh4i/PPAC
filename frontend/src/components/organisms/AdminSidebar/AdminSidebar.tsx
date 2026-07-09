@@ -9,7 +9,12 @@ const navItems = [
   { label: 'Community', path: '/admin/community' },
 ];
 
-const AdminSidebar: React.FC = () => {
+type AdminSidebarProps = {
+  email?: string | null;
+  onLogout: () => void;
+};
+
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ email, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,6 +44,23 @@ const AdminSidebar: React.FC = () => {
           </button>
         ))}
       </nav>
+
+      <div className="admin-sidebar__footer">
+        <div className="admin-sidebar__account">
+          <span className="admin-sidebar__account-label">Logged in as</span>
+          <span className="admin-sidebar__account-email">
+            {email || 'Unknown account'}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className="admin-sidebar__logout"
+          onClick={onLogout}
+        >
+          Log out
+        </button>
+      </div>
     </aside>
   );
 };
