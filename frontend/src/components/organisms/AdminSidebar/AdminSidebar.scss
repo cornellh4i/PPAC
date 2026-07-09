@@ -1,5 +1,5 @@
 .admin-sidebar {
-  width: 240px;
+  width: 200px;
   height: 100vh;
   background-color: #972c52;
   display: flex;
@@ -8,6 +8,8 @@
   flex-shrink: 0;
   overflow: hidden;
   box-sizing: border-box;
+  position: sticky;
+  top: 0;
 
   &__header {
     display: flex;
