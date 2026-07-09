@@ -34,10 +34,8 @@ export const signUpWithEmail = async (
         );
         const token = await userCredential.user.getIdToken();
 
-        // Send token to your backend
-        await registerUserInBackend(token, {
-            email: userCredential.user.email!,
-            uid: userCredential.user.uid
+        await syncUserInBackend(token, {
+            name: userCredential.user.displayName || undefined
         });
 
         return userCredential.user;
@@ -60,8 +58,9 @@ export const loginWithEmail = async (
         );
         const token = await userCredential.user.getIdToken();
 
-        // Send token to backend to verify and get user data
-        await loginUserInBackend(token);
+        await syncUserInBackend(token, {
+            name: userCredential.user.displayName || undefined
+        });
 
         return userCredential.user;
     } catch (error) {
@@ -77,11 +76,8 @@ export const loginWithGoogle = async (): Promise<FirebaseUser> => {
         const userCredential: UserCredential = await signInWithPopup(requireAuth(), provider);
         const token = await userCredential.user.getIdToken();
 
-        // Send token to backend
-        await registerUserInBackend(token, {
-            email: userCredential.user.email!,
-            uid: userCredential.user.uid,
-            displayName: userCredential.user.displayName || undefined
+        await syncUserInBackend(token, {
+            name: userCredential.user.displayName || undefined
         });
 
         return userCredential.user;
@@ -102,9 +98,9 @@ export const logout = async (): Promise<void> => {
 };
 
 // Helper functions to communicate with backend
-const registerUserInBackend = async (
+export const syncUserInBackend = async (
     token: string,
-    userData: FirebaseUserData
+    userData: FirebaseUserData = {}
 ): Promise<User> => {
     const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
@@ -116,20 +112,6 @@ const registerUserInBackend = async (
     });
 
     if (!response.ok) throw new Error('Backend registration failed');
-    const data = await response.json();
-    return data.user;
-};
-
-const loginUserInBackend = async (token: string): Promise<User> => {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    if (!response.ok) throw new Error('Backend login failed');
     const data = await response.json();
     return data.user;
 };

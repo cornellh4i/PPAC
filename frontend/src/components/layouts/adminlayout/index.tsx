@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from '../../../firebase/config';
 import AdminSidebar from '../../organisms/AdminSidebar/AdminSidebar';
 import { isAllowedAdminEmail } from '../../pages/admin/adminAccess';
+import { syncUserInBackend } from '../../../services/authService';
 import './index.scss';
 
 const AdminLayout: React.FC = () => {
@@ -11,21 +12,35 @@ const AdminLayout: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!auth) {
+    const firebaseAuth = auth;
+
+    if (!firebaseAuth) {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser && !isAllowedAdminEmail(currentUser.email)) {
-        void signOut(auth!).finally(() => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
+      void (async () => {
+        if (currentUser && !isAllowedAdminEmail(currentUser.email)) {
+          await signOut(firebaseAuth);
           setUser(null);
           setLoading(false);
-        });
-        return;
-      }
+          return;
+        }
 
-      setUser(currentUser);
-      setLoading(false);
+        if (currentUser) {
+          try {
+            await syncUserInBackend(await currentUser.getIdToken(), {
+              name: currentUser.displayName || undefined,
+              role: 'admin',
+            });
+          } catch (error) {
+            console.error('Failed to sync admin user:', error);
+          }
+        }
+
+        setUser(currentUser);
+        setLoading(false);
+      })();
     });
     return () => unsubscribe();
   }, []);
@@ -33,9 +48,20 @@ const AdminLayout: React.FC = () => {
   if (loading) return <div className="admin-layout__loading">Loading...</div>;
   if (!user) return <Navigate to="/admin/login" replace />;
 
+  const handleLogout = () => {
+    const firebaseAuth = auth;
+
+    if (!firebaseAuth) {
+      return;
+    }
+
+    void signOut(firebaseAuth);
+    setUser(null);
+  };
+
   return (
     <div className="admin-layout">
-      <AdminSidebar />
+      <AdminSidebar email={user.email} onLogout={handleLogout} />
       <main className="admin-layout__content">
         <Outlet />
       </main>

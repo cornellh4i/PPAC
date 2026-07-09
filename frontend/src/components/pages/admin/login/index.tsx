@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../../../firebase/config';
 import { isAllowedAdminEmail } from '../adminAccess';
+import { syncUserInBackend } from '../../../../services/authService';
 import './index.scss';
 
 const AdminLogin: React.FC = () => {
@@ -50,6 +51,10 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
+      await syncUserInBackend(await userCredential.user.getIdToken(), {
+        name: userCredential.user.displayName || undefined,
+        role: 'admin',
+      });
       navigate('/admin', { replace: true });
     } catch (err) {
       setError((err as Error).message);
