@@ -1,0 +1,85 @@
+.notfound {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at top left, rgba(151, 44, 82, 0.16), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(170, 49, 99, 0.14), transparent 30%),
+    var(--background);
+  font-family: var(--font-body);
+
+  &__card {
+    width: min(100%, 560px);
+    background: rgba(255, 254, 252, 0.9);
+    border: 1px solid rgba(151, 44, 82, 0.12);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 18px 50px rgba(42, 18, 25, 0.08);
+    backdrop-filter: blur(6px);
+    text-align: center;
+  }
+
+  &__eyebrow {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    color: var(--dark-pink);
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(38px, 5vw, 58px);
+    line-height: 0.98;
+    color: var(--black);
+  }
+
+  &__message {
+    margin: 18px 0 0;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  &__actions {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  &__primary,
+  &__secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 148px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  &__primary {
+    background: var(--dark-pink);
+    color: #fff;
+    border: 1px solid var(--dark-pink);
+  }
+
+  &__secondary {
+    background: transparent;
+    color: var(--dark-pink);
+    border: 1px solid rgba(151, 44, 82, 0.24);
+  }
+}

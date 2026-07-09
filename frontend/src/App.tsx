@@ -14,6 +14,7 @@ import AdminHome from './components/pages/admin/home';
 import AdminEvents from './components/pages/admin/events';
 import AdminResources from './components/pages/admin/resources';
 import AdminCommunity from './components/pages/admin/community';
+import NotFound from './components/pages/notfound';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const App: React.FC = () => {
@@ -62,6 +63,10 @@ const App: React.FC = () => {
         { path: 'resources', element: <AdminResources /> },
         { path: 'community', element: <AdminCommunity /> }
       ]
+    },
+    {
+      path: '*',
+      element: <NotFound />
     }
   ])
 
