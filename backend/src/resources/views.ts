@@ -68,7 +68,7 @@ resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
 });
 
 resourceRouter.post("/", async (req, res) => {
-  const { title, type, description, link, file, createdBy, tags, readAt, borrowAt } = req.body;
+  const { title, type, description, link, file, createdBy, tags, readAt, borrowAt, status } = req.body;
   if (!title || !type || !description || !link || !createdBy) {
     res.status(400).send(errorJson("Missing a required field"));
     return;
@@ -84,6 +84,7 @@ resourceRouter.post("/", async (req, res) => {
       readAt: readAt ?? [],
       borrowAt: borrowAt ?? [],
       createdBy,
+      status: status ?? 'published',
     });
     res.status(201).send(successJson(resource));
   } catch (error) {
