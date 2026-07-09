@@ -16,16 +16,34 @@ export interface ResourceFull {
 }
 
 interface Props {
-  resource: ResourceFull;
+  /** Pass an existing resource to edit; omit to open in create mode. */
+  resource?: ResourceFull;
+  /** MongoDB _id of the current admin user — required in create mode. */
+  createdById?: string;
   onClose: () => void;
-  onSave: (updated: ResourceFull) => void;
+  onSave: (r: ResourceFull) => void;
 }
+
+const EMPTY: Omit<ResourceFull, '_id' | 'createdAt'> = {
+  title: '',
+  type: 'website',
+  description: '',
+  link: '',
+  file: undefined,
+  tags: [],
+  status: 'published',
+  readAt: [],
+  borrowAt: [],
+};
 
 const TYPES = ['website', 'podcast', 'book', 'local resource', 'informational'] as const;
 const API_BASE = process.env.REACT_APP_API_URL ?? 'http://localhost:8000';
 
-const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
-  const [form, setForm] = useState<ResourceFull>({ ...resource });
+const EditResourceModal: React.FC<Props> = ({ resource, createdById, onClose, onSave }) => {
+  const isCreate = !resource;
+  const [form, setForm] = useState<Omit<ResourceFull, '_id' | 'createdAt'>>(
+    resource ? { ...resource } : { ...EMPTY }
+  );
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,19 +55,16 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const set = <K extends keyof ResourceFull>(key: K, value: ResourceFull[K]) =>
+  const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
   const addTag = () => {
     const trimmed = tagInput.trim();
-    if (trimmed && !form.tags.includes(trimmed)) {
-      set('tags', [...form.tags, trimmed]);
-    }
+    if (trimmed && !form.tags.includes(trimmed)) set('tags', [...form.tags, trimmed]);
     setTagInput('');
   };
 
-  const removeTag = (tag: string) =>
-    set('tags', form.tags.filter((t) => t !== tag));
+  const removeTag = (tag: string) => set('tags', form.tags.filter((t) => t !== tag));
 
   const setBookLink = (
     field: 'readAt' | 'borrowAt',
@@ -57,10 +72,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
     key: 'label' | 'url',
     value: string
   ) => {
-    const updated = form[field].map((item, i) =>
-      i === index ? { ...item, [key]: value } : item
-    );
-    set(field, updated);
+    set(field, form[field].map((item, i) => (i === index ? { ...item, [key]: value } : item)));
   };
 
   const addBookLink = (field: 'readAt' | 'borrowAt') =>
@@ -70,42 +82,53 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
     set(field, form[field].filter((_, i) => i !== index));
 
   const handleSave = async () => {
+    if (!form.title.trim()) { setError('Title is required.'); return; }
+    if (!form.description.trim()) { setError('Description is required.'); return; }
+    if (!form.link.trim()) { setError('Link is required.'); return; }
+
     setSaving(true);
     setError(null);
+
     try {
-      const res = await fetch(`${API_BASE}/api/resources/${form._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: form.title,
-          type: form.type,
-          description: form.description,
-          link: form.link,
-          file: form.file,
-          tags: form.tags,
-          status: form.status,
-          readAt: form.readAt,
-          borrowAt: form.borrowAt,
-        }),
-      });
-      if (!res.ok) throw new Error(`Server error ${res.status}`);
-      onSave(form);
-    } catch (err) {
+      if (isCreate) {
+        const res = await fetch(`${API_BASE}/api/resources`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...form, createdBy: createdById }),
+        });
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const json = await res.json();
+        const created = json.data ?? json;
+        onSave({
+          _id: created._id,
+          createdAt: created.createdAt,
+          ...form,
+        });
+      } else {
+        const res = await fetch(`${API_BASE}/api/resources/${resource!._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        onSave({ ...resource!, ...form });
+      }
+    } catch {
       setError('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) onClose();
-  };
-
   return (
-    <div className="erm-overlay" ref={overlayRef} onClick={handleOverlayClick}>
-      <div className="erm" role="dialog" aria-modal="true" aria-label="Edit resource">
+    <div
+      className="erm-overlay"
+      ref={overlayRef}
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+    >
+      <div className="erm" role="dialog" aria-modal="true">
         <div className="erm__header">
-          <span className="erm__title">Edit resource</span>
+          <span className="erm__title">{isCreate ? 'Create resource' : 'Edit resource'}</span>
           <button className="erm__close" type="button" onClick={onClose} aria-label="Close">
             <CloseIcon />
           </button>
@@ -118,6 +141,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
                 className="erm__input"
                 value={form.title}
                 onChange={(e) => set('title', e.target.value)}
+                placeholder="Resource title"
               />
             </Field>
 
@@ -127,9 +151,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
                 value={form.type}
                 onChange={(e) => set('type', e.target.value)}
               >
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
           </div>
@@ -162,6 +184,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
               rows={3}
+              placeholder="Brief description of the resource"
             />
           </Field>
 
@@ -183,7 +206,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addTag(); }
                 }}
-                placeholder="Type tag and press Enter"
+                placeholder="Type a tag and press Enter"
               />
               <button className="erm__tag-add-btn" type="button" onClick={addTag}>Add</button>
             </div>
@@ -197,9 +220,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
                       type="button"
                       onClick={() => removeTag(tag)}
                       aria-label={`Remove ${tag}`}
-                    >
-                      ×
-                    </button>
+                    >×</button>
                   </span>
                 ))}
               </div>
@@ -235,7 +256,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, onClose, onSave }) => {
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? 'Saving…' : isCreate ? 'Create' : 'Save changes'}
           </button>
         </div>
       </div>

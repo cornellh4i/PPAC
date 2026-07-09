@@ -278,6 +278,11 @@
       background: #f3f4f6;
       color: #6b7280;
     }
+
+    &--danger:hover {
+      background: #fef2f2;
+      color: #b5294a;
+    }
   }
 
   &__empty-cell {
@@ -286,5 +291,80 @@
     font-family: var(--font-body);
     font-size: 13px;
     color: #9ca3af;
+  }
+}
+
+.delete-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.delete-confirm {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+
+  &__heading {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: #132238;
+    margin: 0 0 10px;
+  }
+
+  &__body {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 24px;
+    line-height: 1.5;
+
+    strong {
+      color: #374151;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  &__btn {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &--cancel {
+      background: #f3f4f6;
+      color: #374151;
+
+      &:hover {
+        background: #e5e7eb;
+      }
+    }
+
+    &--delete {
+      background: #b5294a;
+      color: #ffffff;
+
+      &:hover {
+        background: #9a1f3c;
+      }
+    }
   }
 }

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { auth } from '../../../../firebase/config';
 import EditResourceModal, { ResourceFull } from './EditResourceModal';
 import './index.scss';
 
@@ -25,6 +26,9 @@ const AdminResources: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [editTarget, setEditTarget] = useState<ResourceFull | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ResourceFull | null>(null);
+  const [adminMongoId, setAdminMongoId] = useState<string | undefined>();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/resources`)
@@ -49,6 +53,19 @@ const AdminResources: React.FC = () => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    // Fetch the admin's MongoDB _id for use as createdBy when creating resources
+    const firebaseAuth = auth;
+    if (firebaseAuth?.currentUser) {
+      firebaseAuth.currentUser.getIdToken().then((token) => {
+        fetch(`${API_BASE}/api/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((r) => r.json())
+          .then((json) => { if (json.user?._id) setAdminMongoId(json.user._id); })
+          .catch(console.error);
+      });
+    }
   }, []);
 
   const visible = useMemo(() => {
@@ -59,8 +76,7 @@ const AdminResources: React.FC = () => {
         r.title.toLowerCase().includes(q) ||
         r.type.toLowerCase().includes(q) ||
         r.tags.some((t) => t.toLowerCase().includes(q));
-      const matchesStatus =
-        statusFilter === 'all' || r.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [resources, searchQuery, statusFilter]);
@@ -71,11 +87,29 @@ const AdminResources: React.FC = () => {
     return `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
   };
 
-  const handleSave = (updated: ResourceFull) => {
-    setResources((prev) =>
-      prev.map((r) => (r._id === updated._id ? updated : r))
-    );
+  const handleSaveEdit = (updated: ResourceFull) => {
+    setResources((prev) => prev.map((r) => (r._id === updated._id ? updated : r)));
     setEditTarget(null);
+  };
+
+  const handleCreate = (created: ResourceFull) => {
+    setResources((prev) => [created, ...prev]);
+    setShowCreate(false);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/resources/${deleteTarget._id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      setResources((prev) => prev.filter((r) => r._id !== deleteTarget._id));
+    } catch {
+      // keep modal open so user sees the failure
+      return;
+    }
+    setDeleteTarget(null);
   };
 
   return (
@@ -113,7 +147,11 @@ const AdminResources: React.FC = () => {
               <ChevronIcon />
             </div>
 
-            <button className="admin-resources__add-btn" type="button">
+            <button
+              className="admin-resources__add-btn"
+              type="button"
+              onClick={() => setShowCreate(true)}
+            >
               + Add resource
             </button>
           </div>
@@ -159,11 +197,7 @@ const AdminResources: React.FC = () => {
                           {r.tags.map((tag, i) => {
                             const p = TAG_PALETTE[i % TAG_PALETTE.length];
                             return (
-                              <span
-                                key={tag}
-                                className="admin-resources__tag"
-                                style={{ background: p.bg, color: p.color }}
-                              >
+                              <span key={tag} className="admin-resources__tag" style={{ background: p.bg, color: p.color }}>
                                 {tag}
                               </span>
                             );
@@ -192,9 +226,10 @@ const AdminResources: React.FC = () => {
                           <PencilIcon />
                         </button>
                         <button
-                          className="admin-resources__action-btn"
+                          className="admin-resources__action-btn admin-resources__action-btn--danger"
                           type="button"
                           aria-label="Delete resource"
+                          onClick={() => setDeleteTarget(r)}
                         >
                           <TrashIcon />
                         </button>
@@ -209,14 +244,67 @@ const AdminResources: React.FC = () => {
         </div>
       </div>
 
+      {showCreate && (
+        <EditResourceModal
+          createdById={adminMongoId}
+          onClose={() => setShowCreate(false)}
+          onSave={handleCreate}
+        />
+      )}
+
       {editTarget && (
         <EditResourceModal
           resource={editTarget}
           onClose={() => setEditTarget(null)}
-          onSave={handleSave}
+          onSave={handleSaveEdit}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteConfirmModal
+          title={deleteTarget.title}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
         />
       )}
     </>
+  );
+};
+
+const DeleteConfirmModal: React.FC<{
+  title: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}> = ({ title, onCancel, onConfirm }) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onCancel]);
+
+  return (
+    <div
+      className="delete-confirm-overlay"
+      ref={overlayRef}
+      onClick={(e) => { if (e.target === overlayRef.current) onCancel(); }}
+    >
+      <div className="delete-confirm" role="dialog" aria-modal="true">
+        <p className="delete-confirm__heading">Delete resource?</p>
+        <p className="delete-confirm__body">
+          <strong>"{title}"</strong> will be permanently removed. This cannot be undone.
+        </p>
+        <div className="delete-confirm__footer">
+          <button className="delete-confirm__btn delete-confirm__btn--cancel" type="button" onClick={onCancel}>
+            Cancel
+          </button>
+          <button className="delete-confirm__btn delete-confirm__btn--delete" type="button" onClick={onConfirm}>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

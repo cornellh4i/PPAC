@@ -15,6 +15,7 @@ interface Resource {
   description: string;
   link?: string;
   tags?: string[];
+  status?: string;
   createdAt?: string;
   readAt?: BookLink[];
   borrowAt?: BookLink[];
@@ -48,17 +49,20 @@ const Resources: React.FC = () => {
         const json = await res.json();
         // successJson wraps response in { data: ... }
         const raw = json.data ?? json;
-        const mapped: Resource[] = raw.map((r: any) => ({
-          _id: r._id,
-          title: r.title,
-          type: r.type,
-          description: r.description,
-          link: r.link,
-          tags: r.tags ?? [],
-          createdAt: r.createdAt,
-          readAt: r.readAt ?? [],
-          borrowAt: r.borrowAt ?? [],
-        }));
+        const mapped: Resource[] = raw
+          .filter((r: any) => (r.status ?? 'published') === 'published')
+          .map((r: any) => ({
+            _id: r._id,
+            title: r.title,
+            type: r.type,
+            description: r.description,
+            link: r.link,
+            tags: r.tags ?? [],
+            status: r.status,
+            createdAt: r.createdAt,
+            readAt: r.readAt ?? [],
+            borrowAt: r.borrowAt ?? [],
+          }));
         setResources(mapped);
       } catch (err) {
         console.error('Failed to fetch resources:', err);
