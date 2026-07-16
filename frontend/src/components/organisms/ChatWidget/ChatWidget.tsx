@@ -14,14 +14,12 @@ const renderMessageContent = (content: string) => {
     .replace(/(\[([^\]]+)\]\([^\)]+\))\s*https?:\/\/\S+/g, "$1");
 
   return cleaned.split("\n").map((line, lineIndex, allLines) => {
-    // Tokenize each line into bold, links, and plain text
     const tokenRegex = /(\*\*(.+?)\*\*|\[([^\]]+)\]\((https?:\/\/[^\)]+)\))/g;
     const elements: React.ReactNode[] = [];
     let lastIndex = 0;
     let match;
 
     while ((match = tokenRegex.exec(line)) !== null) {
-      // Push any plain text before this match
       if (match.index > lastIndex) {
         elements.push(
           <span key={`text-${lastIndex}`}>
@@ -31,10 +29,8 @@ const renderMessageContent = (content: string) => {
       }
 
       if (match[0].startsWith("**")) {
-        // Bold
         elements.push(<strong key={`bold-${match.index}`}>{match[2]}</strong>);
       } else {
-        // Link
         elements.push(
           <a
             key={`link-${match.index}`}
@@ -51,7 +47,6 @@ const renderMessageContent = (content: string) => {
       lastIndex = match.index + match[0].length;
     }
 
-    // Push any remaining plain text after last match
     if (lastIndex < line.length) {
       elements.push(
         <span key={`text-end-${lastIndex}`}>{line.slice(lastIndex)}</span>,
@@ -74,10 +69,10 @@ const ChatWidget: React.FC = () => {
   const widgetRef = useRef<HTMLDivElement>(null);
 
   const prompts = [
-    "I want resources on period cramps",
-    "I want mental health resources",
-    "I want to contact the admin",
+    "What resources exist for pelvic pain?",
+    "How do I contact the team?",
     "I'm looking for events",
+    "I want resources on period cramps",
   ];
 
   useEffect(() => {
@@ -146,7 +141,6 @@ const ChatWidget: React.FC = () => {
                 key={i}
                 className={`chat-widget__message chat-widget__message--${msg.role}`}
               >
-                {/* CHANGED — was {msg.content}, now uses the render helper */}
                 {renderMessageContent(msg.content)}
               </div>
             ))}
