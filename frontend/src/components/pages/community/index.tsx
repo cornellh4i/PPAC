@@ -1,17 +1,27 @@
 import ProfileCard from "../../molecules/ProfileCard/ProfileCard";
 import EventCard from "../../molecules/EventCard/EventCard";
+import officer1 from "../../../assets/team/asmita-mittal-headshot.png";
+import officer2 from "../../../assets/team/gracie-luong-headshot.jpg";
+import officer3 from "../../../assets/team/marianna-hodgins-headshot.jpg";
+import officer4 from "../../../assets/team/gillian-goldstein-headshot.jpg";
 import "./community.scss";
 
-const officers = Array.from({ length: 9 }, (_, index) => ({
+const officerData = [
+  {name: "Asmita Mittal", role: "President", imageUrl: officer1, linkedinUrl: "https://www.linkedin.com/in/asmita-mittal/"},
+  {name: "Gracie Luong", role: "Vice President", imageUrl: officer2, linkedinUrl: "https://www.linkedin.com/in/gracie-luong/"},
+  {name: "Marianna Hodgins", role: "Secretary", imageUrl: officer3, linkedinUrl: "https://www.linkedin.com/in/marianna-hodgins-48684631a/"},
+  {name: "Gillian Goldstein", role: "Treasurer", imageUrl: officer4, linkedinUrl: "https://www.linkedin.com/in/gillian-goldstein-338a57395/"}
+];
+
+const officers = officerData.map((officer, index) => ({
   id: `officer-${index + 1}`,
-  name: "Isaac Newton",
-  role: "President",
+  ...officer,
 }));
 
-const speakers = Array.from({ length: 6 }, (_, index) => ({
+const speakers = Array.from({ length: 3 }, (_, index) => ({
   id: `speaker-${index + 1}`,
-  name: "Isaac Newton",
-  role: "President",
+  name: "Corey Dresen",
+  role: "Physical Therapist",
 }));
 
 const Team: React.FC = () => {
@@ -19,14 +29,19 @@ const Team: React.FC = () => {
     <div className="community">
       <section className="community__intro">
         <h1 className="community__title">A Team of People Who Care.</h1>
-        <p className="community__subtitle">We care about you and all that stuff subtitle</p>
       </section>
 
       <section className="community__section">
         <h2 className="community__heading">Our Officers</h2>
         <div className="community__grid">
           {officers.map((officer) => (
-            <ProfileCard key={officer.id} name={officer.name} role={officer.role} />
+            <ProfileCard 
+              key={officer.id} 
+              name={officer.name} 
+              role={officer.role} 
+              imageUrl={officer.imageUrl}
+              linkedinUrl={officer.linkedinUrl}
+            />
           ))}
         </div>
       </section>
