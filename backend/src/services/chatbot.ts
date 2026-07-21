@@ -2,6 +2,11 @@ import OpenAI from "openai";
 import { Router } from "express";
 import { successJson, errorJson } from "../utils/jsonResponses";
 import { searchSimilarChunks } from "./vectorSearch";
+import {
+  buildRetrievedContext,
+  buildSystemPrompt,
+  getGuardrailReply,
+} from "./chatbotPolicy";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const chatbotRouter = Router();
@@ -10,31 +15,28 @@ chatbotRouter.post("/", async (req, res) => {
   try {
     const { messages } = req.body;
 
-    // Get the most recent user message to search against
     const lastUserMessage =
       [...messages].reverse().find((m: any) => m.role === "user")?.content ??
       "";
 
-    // Retrieve relevant resource chunks
+    const earlyGuardrailReply = getGuardrailReply(lastUserMessage, true);
+    if (earlyGuardrailReply) {
+      res.status(200).send(successJson({ reply: earlyGuardrailReply }));
+      return;
+    }
+
     const relevantChunks = await searchSimilarChunks(lastUserMessage);
-
-    const context =
+    const postRetrievalGuardrailReply = getGuardrailReply(
+      lastUserMessage,
       relevantChunks.length > 0
-        ? relevantChunks
-            .map(
-              (c: any) =>
-                `Title: ${c.metadata.title}\nType: ${c.metadata.type}\nLink: ${c.metadata.sourceUrl}\nContent: ${c.text}`
-            )
-            .join("\n\n---\n\n")
-        : "No closely matching resources were found.";
+    );
+    if (postRetrievalGuardrailReply) {
+      res.status(200).send(successJson({ reply: postRetrievalGuardrailReply }));
+      return;
+    }
 
-    const systemPrompt = `You are a helpful assistant for PPAC, a women's health organization.
-Answer the user's question using the resources and events provided below.
-Always include the title and link/location when referencing something.
-If the provided context doesn't answer the question, say so honestly.
-
-CONTEXT:
-${context}`;
+    const context = buildRetrievedContext(relevantChunks);
+    const systemPrompt = buildSystemPrompt(context);
 
     const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
