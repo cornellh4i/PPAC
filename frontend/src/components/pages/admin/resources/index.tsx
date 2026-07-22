@@ -6,11 +6,11 @@ import './index.scss';
 const API_BASE = process.env.REACT_APP_API_URL ?? 'http://localhost:8000';
 
 const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
-  website:          { bg: '#fce4e8', color: '#b5294a' },
-  podcast:          { bg: '#ede4fc', color: '#6b3ec0' },
-  book:             { bg: '#e4eeff', color: '#3b5ec0' },
+  website: { bg: '#fce4e8', color: '#b5294a' },
+  podcast: { bg: '#ede4fc', color: '#6b3ec0' },
+  book: { bg: '#e4eeff', color: '#3b5ec0' },
   'local resource': { bg: '#fef3e4', color: '#a0622e' },
-  informational:    { bg: '#e4fce4', color: '#2a8c3c' },
+  informational: { bg: '#e4fce4', color: '#2a8c3c' },
 };
 
 const TAG_PALETTE = [
