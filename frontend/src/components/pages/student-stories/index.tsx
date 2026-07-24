@@ -44,6 +44,7 @@ const StudentStories: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [scrapbookPhotos, setScrapbookPhotos] = useState(SCRAPBOOK_PLACEHOLDERS);
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -62,6 +63,28 @@ const StudentStories: React.FC = () => {
     };
 
     fetchStories();
+
+    const fetchScrapbookPhotos = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/community?section=scrapbook`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const raw: any[] = json.data ?? json;
+        if (raw.length > 0) {
+          setScrapbookPhotos(
+            raw.map((p) => ({
+              caption: p.caption || 'Shared Joy',
+              date: p.date || '',
+              imageUrl: p.imageUrl,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error('Failed to fetch scrapbook photos:', err);
+      }
+    };
+
+    fetchScrapbookPhotos();
   }, []);
 
   return (
@@ -113,7 +136,7 @@ const StudentStories: React.FC = () => {
           aria-hidden="true"
         />
         <div className="student-stories__polaroidGrid">
-          {SCRAPBOOK_PLACEHOLDERS.map((item, index) => (
+          {scrapbookPhotos.map((item, index) => (
             <PolaroidCard
               key={index}
               imageUrl={item.imageUrl}

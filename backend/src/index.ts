@@ -7,6 +7,7 @@ import eventRouter from "./events/views";
 import emailRouter from "./emails/views";
 import chatbotRouter from "./services/chatbot";
 import storyRouter from "./stories/views";
+import communityRouter from "./community/views";
 import swaggerUI from "swagger-ui-express";
 import spec from "../api-spec.json";
 import { dbConnect } from "./database";
@@ -34,6 +35,7 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/resources", resourceRouter);
 apiRouter.use("/events", eventRouter);
 apiRouter.use("/stories", storyRouter);
+apiRouter.use("/community", communityRouter);
 apiRouter.use("/email", emailRouter);
 apiRouter.use("/chat", chatbotRouter);
 

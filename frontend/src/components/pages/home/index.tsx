@@ -66,6 +66,7 @@ const Home: React.FC = () => {
   const attachmentInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [heroPhotoUrl, setHeroPhotoUrl] = useState(heroPhoto);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -98,6 +99,22 @@ const Home: React.FC = () => {
     }, 15000);
 
     return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const fetchHeroPhoto = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/community?section=hero`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const raw: any[] = json.data ?? json;
+        if (raw.length > 0) setHeroPhotoUrl(raw[0].imageUrl);
+      } catch (err) {
+        console.error("Failed to fetch hero photo:", err);
+      }
+    };
+
+    fetchHeroPhoto();
   }, []);
 
   const getTestimonialPosition = (
@@ -258,7 +275,7 @@ const Home: React.FC = () => {
 
             <img
               className="home__hero-photo"
-              src={heroPhoto}
+              src={heroPhotoUrl}
               alt="Members of the Pelvic Pain Association at Cornell"
             />
           </div>
