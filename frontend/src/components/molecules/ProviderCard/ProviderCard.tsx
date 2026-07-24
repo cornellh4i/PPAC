@@ -19,6 +19,7 @@ export type ProviderCardProps = {
   about: string;
   experience: string;
   imageUrl?: string;
+  bookingLink: string;
 };
 
 const ProviderCard = ({
@@ -32,8 +33,13 @@ const ProviderCard = ({
   about,
   experience,
   imageUrl,
+  bookingLink,
 }: ProviderCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleBook = () => {
+    window.open(bookingLink, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <>
@@ -98,7 +104,7 @@ const ProviderCard = ({
             <User size={16} aria-hidden="true" />
             View Profile
           </button>
-          <button type="button" className="providerCard__footerLink">
+          <button type="button" className="providerCard__footerLink" onClick={handleBook}>
             <CalendarCheck size={16} aria-hidden="true" />
             Book
           </button>
@@ -120,6 +126,7 @@ const ProviderCard = ({
         about={about}
         experience={experience}
         imageUrl={imageUrl}
+        onBook={handleBook}
       />
     </>
   );

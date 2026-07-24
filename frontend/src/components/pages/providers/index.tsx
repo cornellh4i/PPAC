@@ -1,82 +1,9 @@
-import ProviderCard, { ProviderCardProps } from "../../molecules/ProviderCard/ProviderCard";
+import ProviderCard from "../../molecules/ProviderCard/ProviderCard";
 import { Search, Funnel } from "lucide-react";
-import { useMemo, useState } from "react";
-import femalePractIcon from "../../../assets/icons/female_pract.png";
-import malePractIcon from "../../../assets/icons/male_pract.png";
+import { useEffect, useMemo, useState } from "react";
+import { Provider, getProviders } from "../admin/providers/providersApi";
+import { getAvatarIcon } from "../admin/providers/avatarOptions";
 import "./Providers.scss";
-
-const DUMMY_PROVIDERS: ProviderCardProps[] = [
-  {
-    name: "Dr. Sarah Chen",
-    field: "Counseling & Psychology",
-    location: "110 Ho Plaza, Ithaca, NY",
-    rating: 4.8,
-    availability: [{ day: "Mon–Sat", time: "8 AM – 8 PM" }],
-    insurance: ["Cornell SHP", "Self-pay"],
-    number: "(607) 255-5155",
-    about:
-      "Dr. Chen specializes in anxiety, depression, and academic stress for undergraduate and graduate students. She creates a welcoming, judgment-free environment.",
-    experience:
-      "10+ years of experience in college counseling. Completed fellowship at Columbia University Counseling Center. Licensed Clinical Psychologist (NY).",
-    imageUrl: femalePractIcon,
-  },
-  {
-    name: "James Okafor, LCSW",
-    field: "Mental Health & Wellness",
-    location: "223 Gannett Health Center",
-    rating: 4.6,
-    availability: [{ day: "Mon–Sat", time: "8 AM – 8 PM" }],
-    insurance: ["Cornell SHP", "Aetna", "Self-pay"],
-    number: "(607) 255-5200",
-    about:
-      "James works with students navigating identity, cultural adjustment, and interpersonal challenges. He takes a strengths-based, culturally affirming approach.",
-    experience:
-      "8 years in university mental health. Former social worker at NYC Department of Education. Master's in Social Work from NYU.",
-    imageUrl: malePractIcon,
-  },
-  {
-    name: "Dr. Priya Nair",
-    field: "Psychiatry",
-    location: "110 Ho Plaza, Ithaca, NY",
-    rating: 4.9,
-    availability: [{ day: "Mon–Sat", time: "8 AM – 8 PM" }],
-    insurance: ["Cornell SHP", "BlueCross", "United"],
-    number: "(607) 255-5100",
-    about:
-      "Dr. Nair provides psychiatric evaluations and medication management for students with ADHD, mood disorders, and anxiety. She emphasizes a collaborative care model.",
-    experience:
-      "Board-certified psychiatrist with 12 years of clinical experience. Residency at Johns Hopkins Hospital. Research focus on ADHD in college populations.",
-    imageUrl: femalePractIcon,
-  },
-  {
-    name: "Marcus Rivera, LPC",
-    field: "Substance Use & Recovery",
-    location: "400 Computing & Communications Center",
-    rating: 4.5,
-    availability: [{ day: "Mon–Sat", time: "8 AM – 8 PM" }],
-    insurance: ["Self-pay", "Cornell SHP"],
-    number: "(607) 255-6789",
-    about:
-      "Marcus supports students in recovery and those exploring their relationship with substances. He offers individual counseling and facilitates peer support groups.",
-    experience:
-      "Licensed Professional Counselor with a certificate in addiction studies. 6 years working in university recovery programs. Former crisis counselor.",
-    imageUrl: malePractIcon,
-  },
-  {
-    name: "Dr. Amelia Brooks",
-    field: "Sports & Performance Psychology",
-    location: "Bartels Hall, Ithaca, NY",
-    rating: 4.7,
-    availability: [{ day: "Mon–Sat", time: "8 AM – 8 PM" }],
-    insurance: ["Cornell SHP", "Aetna"],
-    number: "(607) 255-4321",
-    about:
-      "Dr. Brooks works with student-athletes on performance anxiety, burnout, and the mental demands of competing at the collegiate level.",
-    experience:
-      "Certified Mental Performance Consultant (CMPC). 9 years working with NCAA Division I athletes. PhD in Sport & Exercise Psychology from Penn State.",
-    imageUrl: femalePractIcon,
-  },
-];
 
 const PROVIDER_FILTERS = [
   "All",
@@ -86,13 +13,25 @@ const PROVIDER_FILTERS = [
 ];
 
 const Providers: React.FC = () => {
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const list = await getProviders();
+        setProviders(list);
+      } catch (error) {
+        console.error("Failed to load providers:", error);
+      }
+    })();
+  }, []);
 
   const filteredProviders = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return DUMMY_PROVIDERS.filter((provider) => {
+    return providers.filter((provider) => {
       const matchesFilter =
         selectedFilter === "All" || provider.field === selectedFilter;
       const matchesQuery =
@@ -103,7 +42,7 @@ const Providers: React.FC = () => {
 
       return matchesFilter && matchesQuery;
     });
-  }, [searchQuery, selectedFilter]);
+  }, [providers, searchQuery, selectedFilter]);
 
   return (
     <div className="providers">
@@ -151,8 +90,8 @@ const Providers: React.FC = () => {
 
       <div className="providers__grid">
         {filteredProviders.map((provider) => (
-          <div key={provider.name} className="providers__card">
-            <ProviderCard {...provider} />
+          <div key={provider._id} className="providers__card">
+            <ProviderCard {...provider} imageUrl={getAvatarIcon(provider.avatar)} />
           </div>
         ))}
       </div>

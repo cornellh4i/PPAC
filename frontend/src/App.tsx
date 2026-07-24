@@ -16,6 +16,7 @@ import AdminEvents from './components/pages/admin/events';
 import AdminResources from './components/pages/admin/resources';
 import AdminCommunity from './components/pages/admin/community';
 import AdminTeam from './components/pages/admin/team';
+import AdminProviders from './components/pages/admin/providers';
 import NotFound from './components/pages/notfound';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
@@ -65,7 +66,8 @@ const App: React.FC = () => {
         { path: 'events', element: <AdminEvents /> },
         { path: 'resources', element: <AdminResources /> },
         { path: 'community', element: <AdminCommunity /> },
-        { path: 'team', element: <AdminTeam /> }
+        { path: 'team', element: <AdminTeam /> },
+        { path: 'providers', element: <AdminProviders /> }
       ]
     },
     {
