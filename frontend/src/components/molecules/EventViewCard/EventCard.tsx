@@ -140,18 +140,6 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         </a>
       </div>
 
-      {/* <div className="event-card__image">
-        {event.imageUrl ? (
-          <img
-            src={event.imageUrl}
-            alt={`${event.title} event`}
-            className="event-card__image-photo"
-          />
-        ) : (
-          <div className="event-card__image-fallback" aria-hidden="true" />
-        )}
-      </div> */}
-
       {event.description && (
         <p className="event-card__description">{event.description}</p>
       )}
