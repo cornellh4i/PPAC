@@ -29,11 +29,14 @@ const AdminLayout: React.FC = () => {
     }
     const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
       void (async () => {
-        if (currentUser && !isAllowedAdminEmail(currentUser.email)) {
-          await signOut(firebaseAuth);
-          setUser(null);
-          setLoading(false);
-          return;
+        if (currentUser) {
+          const token = await currentUser.getIdToken();
+          if (!(await isAllowedAdminEmail(token))) {
+            await signOut(firebaseAuth);
+            setUser(null);
+            setLoading(false);
+            return;
+          }
         }
 
         if (currentUser) {
