@@ -1,6 +1,5 @@
 import "./ProviderCard.scss";
-import Button from "../../atoms/Button/Button";
-import { MapPin, Phone, Calendar, Shield } from "lucide-react";
+import { MapPin, Phone, Calendar, Shield, User, CalendarCheck } from "lucide-react";
 import { useState } from "react";
 import ProviderModal from "../../organisms/ProviderModal/ProviderModal";
 
@@ -20,6 +19,7 @@ export type ProviderCardProps = {
   about: string;
   experience: string;
   imageUrl?: string;
+  bookingLink: string;
 };
 
 const ProviderCard = ({
@@ -33,8 +33,13 @@ const ProviderCard = ({
   about,
   experience,
   imageUrl,
+  bookingLink,
 }: ProviderCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleBook = () => {
+    window.open(bookingLink, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <>
@@ -91,12 +96,18 @@ const ProviderCard = ({
         </div>
 
         <div className="providerCard__footer">
-          <Button variant="rect">
-            Book Appointment
-          </Button>
-          <Button variant="rect" onClick={() => setIsOpen(true)}>
-            More
-          </Button>
+          <button
+            type="button"
+            className="providerCard__footerLink"
+            onClick={() => setIsOpen(true)}
+          >
+            <User size={16} aria-hidden="true" />
+            View Profile
+          </button>
+          <button type="button" className="providerCard__footerLink" onClick={handleBook}>
+            <CalendarCheck size={16} aria-hidden="true" />
+            Book
+          </button>
         </div>
 
       </article>
@@ -115,6 +126,7 @@ const ProviderCard = ({
         about={about}
         experience={experience}
         imageUrl={imageUrl}
+        onBook={handleBook}
       />
     </>
   );

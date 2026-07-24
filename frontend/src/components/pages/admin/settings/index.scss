@@ -1,0 +1,144 @@
+.admin-settings {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(18, 28, 45, 0.08);
+    display: flex;
+    flex-direction: column;
+    max-width: 480px;
+    overflow: hidden;
+  }
+
+  &__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+  }
+
+  &__card-title {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: #132238;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 24px 16px;
+  }
+
+  &__input {
+    flex: 1;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #374151;
+    outline: none;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: #7c1d2e;
+    }
+  }
+
+  &__add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #7c1d2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #6b1828;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__error {
+    margin: 0 24px 12px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #b5294a;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-top: 1px solid #f0f1f4;
+
+    &:hover {
+      background: #fafafa;
+    }
+  }
+
+  &__email {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #374151;
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #9ca3af;
+    transition: color 0.15s, background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #fef2f2;
+      color: #b5294a;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__empty {
+    padding: 24px;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #9ca3af;
+  }
+}

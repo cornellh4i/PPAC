@@ -1,5 +1,5 @@
 import "./ProviderModal.scss";
-import { MapPin, Phone, Calendar, Shield, Star } from "lucide-react";
+import { MapPin, Phone, Calendar, Shield, Award, X } from "lucide-react";
 
 export type Availability = {
   day: string;
@@ -33,52 +33,51 @@ const ProviderModal = ({
   number,
   about,
   experience,
-  rating,
   imageUrl,
   onBook,
 }: ProviderModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="providerModal__overlay" onClick={onClose}>  
-    <div className="providerModal" onClick={(e) => e.stopPropagation()}>
+    <div className="providerModal__overlay" onClick={onClose}>
+      <div className="providerModal" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="providerModal__closeBtn"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
 
         {/* Header */}
         <div className="providerModal__header">
-          <div className="providerModal__headerLeft">
-            {imageUrl ? (
-              <img src={imageUrl} alt={name} className="providerModal__avatar" />
-            ) : (
-              <div className="providerModal__avatarFallback" />
-            )}
-            <div className="providerModal__nameBlock">
-              <h2 className="providerModal__name">{name}</h2>
-              <p className="providerModal__field">{field}</p>
-            </div>
-          </div>
-
-          {rating !== undefined && (
-            <div className="providerModal__rating">
-              <Star size={16} fill="black" strokeWidth={0} />
-              {rating.toFixed(1)}
-            </div>
+          {imageUrl ? (
+            <img src={imageUrl} alt={name} className="providerModal__avatar" />
+          ) : (
+            <div className="providerModal__avatarFallback" />
           )}
+          <div className="providerModal__nameBlock">
+            <h2 className="providerModal__name">{name}</h2>
+            <p className="providerModal__field">{field}</p>
+          </div>
         </div>
 
-        {/* Info Grid */}
-        <div className="providerModal__grid">
-          <div className="providerModal__infoBlock">
-            <MapPin size={16} className="providerModal__infoIcon" />
-            <div className="providerModal__infoText">
-              <p className="providerModal__label">LOCATION</p>
+        {/* Contact Information */}
+        <div className="providerModal__section">
+          <p className="providerModal__sectionTitle">
+            <Award size={18} className="providerModal__sectionIcon" />
+            Contact Information
+          </p>
+
+          <div className="providerModal__contactBox">
+            <div className="providerModal__infoBlock">
+              <MapPin size={16} className="providerModal__infoIcon" />
               <p className="providerModal__value">{location}</p>
             </div>
-          </div>
 
-          <div className="providerModal__infoBlock">
-            <Calendar size={16} className="providerModal__infoIcon" />
-            <div className="providerModal__infoText">
-              <p className="providerModal__label">AVAILABILITY</p>
+            <div className="providerModal__infoBlock">
+              <Calendar size={16} className="providerModal__infoIcon" />
               <p className="providerModal__value">
                 {availability.map((slot, i) => (
                   <span key={i}>
@@ -88,28 +87,26 @@ const ProviderModal = ({
                 ))}
               </p>
             </div>
-          </div>
 
-          <div className="providerModal__infoBlock">
-            <Phone size={16} className="providerModal__infoIcon" />
-            <div className="providerModal__infoText">
-              <p className="providerModal__label">Number</p>
+            <div className="providerModal__infoBlock">
+              <Phone size={16} className="providerModal__infoIcon" />
               <p className="providerModal__value">{number}</p>
             </div>
           </div>
+        </div>
 
-          <div className="providerModal__infoBlock">
-            <Shield size={16} className="providerModal__infoIcon" />
-            <div className="providerModal__infoText">
-              <p className="providerModal__label">INSURANCE</p>
-              <div className="providerModal__badges">
-                {insurance.map((item) => (
-                  <span key={item} className="providerModal__badge">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
+        {/* Insurance */}
+        <div className="providerModal__section">
+          <p className="providerModal__sectionTitle">
+            <Shield size={18} className="providerModal__sectionIcon" />
+            Insurance
+          </p>
+          <div className="providerModal__badges">
+            {insurance.map((item) => (
+              <span key={item} className="providerModal__badge">
+                {item}
+              </span>
+            ))}
           </div>
         </div>
 

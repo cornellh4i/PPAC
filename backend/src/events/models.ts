@@ -54,8 +54,8 @@ export class Event {
   @prop({ type: () => [String], default: [] })
   public tags!: string[];
 
-  @prop({ required: true, type: mongoose.Types.ObjectId })
-  public createdBy!: mongoose.Types.ObjectId;
+  @prop({ type: mongoose.Types.ObjectId })
+  public createdBy?: mongoose.Types.ObjectId;
 
   @prop({ default: Date.now })
   public createdAt!: Date;

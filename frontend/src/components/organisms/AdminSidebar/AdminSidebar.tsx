@@ -1,13 +1,17 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './AdminSidebar.scss';
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./AdminSidebar.scss";
 
-const navItems = [
-  { label: 'Home', path: '/admin' },
-  { label: 'Events', path: '/admin/events' },
-  { label: 'Resources', path: '/admin/resources' },
-  { label: 'Community', path: '/admin/community' },
+const pageNavItems = [
+  { label: "Home", path: "/admin/home" },
+  { label: "Events", path: "/admin/events" },
+  { label: "Resources", path: "/admin/resources" },
+  { label: "Community", path: "/admin/community" },
+  { label: "Team", path: "/admin/team" },
+  { label: "Providers", path: "/admin/providers" },
 ];
+
+const settingsNavItems = [{ label: "Admin Settings", path: "/admin" }];
 
 type AdminSidebarProps = {
   email?: string | null;
@@ -19,8 +23,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ email, onLogout }) => {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === '/admin') {
-      return location.pathname === '/admin' || location.pathname === '/admin/';
+    if (path === "/admin") {
+      return location.pathname === "/admin" || location.pathname === "/admin/";
     }
     return location.pathname === path;
   };
@@ -33,11 +37,24 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ email, onLogout }) => {
       </div>
 
       <nav className="admin-sidebar__nav">
-        {navItems.map(({ label, path }) => (
+        <span className="admin-sidebar__section-label">Settings</span>
+        {settingsNavItems.map(({ label, path }) => (
           <button
             key={path}
             type="button"
-            className={`admin-sidebar__link${isActive(path) ? ' admin-sidebar__link--active' : ''}`}
+            className={`admin-sidebar__link${isActive(path) ? " admin-sidebar__link--active" : ""}`}
+            onClick={() => navigate(path)}
+          >
+            {label}
+          </button>
+        ))}
+
+        <span className="admin-sidebar__section-label">Pages</span>
+        {pageNavItems.map(({ label, path }) => (
+          <button
+            key={path}
+            type="button"
+            className={`admin-sidebar__link${isActive(path) ? " admin-sidebar__link--active" : ""}`}
             onClick={() => navigate(path)}
           >
             {label}
@@ -46,13 +63,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ email, onLogout }) => {
       </nav>
 
       <div className="admin-sidebar__footer">
-        <div className="admin-sidebar__account">
-          <span className="admin-sidebar__account-label">Logged in as</span>
-          <span className="admin-sidebar__account-email">
-            {email || 'Unknown account'}
-          </span>
-        </div>
-
         <button
           type="button"
           className="admin-sidebar__logout"

@@ -1,12 +1,85 @@
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f4f6f8;
 
   &__content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f4f6f8;
+  }
+
+  &__topbar {
+    background-color: #ffffff;
+    min-height: 76px;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid rgba(18, 28, 45, 0.08);
+    box-shadow: 0 1px 0 rgba(18, 28, 45, 0.02);
+    flex-shrink: 0;
+  }
+
+  &__page {
+    flex: 1;
     padding: 32px;
+    min-width: 0;
     overflow-y: auto;
-    background-color: var(--background);
+  }
+
+  &__page-title {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 24px;
+    font-weight: 700;
+    color: #132238;
+    line-height: 1.2;
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #e8eef4;
+    flex-shrink: 0;
+  }
+
+  &__profile-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.1;
+  }
+
+  &__profile-name {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: #132238;
+  }
+
+  &__profile-role {
+    margin-top: 4px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
   }
 
   &__loading {

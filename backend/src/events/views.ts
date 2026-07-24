@@ -1,13 +1,31 @@
-import { Router, Request } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import eventControllers from "./controllers";
+import { verifyToken } from "../middleware/authMiddleware";
+import { isAllowedAdminEmail } from "../auth/adminAllowlist";
 import { successJson, errorJson } from "../utils/jsonResponses";
 
 const eventRouter = Router();
 
-eventRouter.post("/", async (req, res) => {
-  const { title, eventType, startTime, endTime, location, organizer, createdBy } = req.body;
-  if (!title || !eventType || !startTime || !endTime || !location || !organizer || !createdBy) {
+const requireAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  if (!req.user) {
+    res.status(401).send(errorJson("Unauthorized"));
+    return;
+  }
+  if (!(await isAllowedAdminEmail(req.user.email))) {
+    res.status(403).send(errorJson("Forbidden"));
+    return;
+  }
+  next();
+};
+
+eventRouter.post("/", verifyToken, requireAdmin, async (req, res) => {
+  const { title, eventType, startTime, endTime, location, organizer } = req.body;
+  if (!title || !eventType || !startTime || !endTime || !location || !organizer) {
     return res.status(400).send(errorJson("Missing required fields"));
   }
   try {
@@ -26,7 +44,7 @@ eventRouter.get("/", async (req, res) => {
   if (req.query.startDate) filter.startTime = { $gte: new Date(req.query.startDate as string) };
   if (req.query.endDate) filter.endTime = { $lte: new Date(req.query.endDate as string) };
   try {
-    const events = await eventControllers.getEvents();
+    const events = await eventControllers.getEvents(filter);
     res.status(200).send(successJson(events));
   } catch (error) {
     res.status(400).send(errorJson((error as Error).message));
@@ -47,32 +65,42 @@ eventRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-eventRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
-  try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const updated = await eventControllers.updateEvent(id, req.body);
-    if (!updated) {
-      res.status(404).send(errorJson("Event not found"));
-      return;
+eventRouter.put(
+  "/:id",
+  verifyToken,
+  requireAdmin,
+  async (req: Request<{ id: string }>, res) => {
+    try {
+      const id = new mongoose.Types.ObjectId(req.params.id);
+      const updated = await eventControllers.updateEvent(id, req.body);
+      if (!updated) {
+        res.status(404).send(errorJson("Event not found"));
+        return;
+      }
+      res.status(200).send(successJson(updated));
+    } catch (error) {
+      res.status(400).send(errorJson("Failed to update event"));
     }
-    res.status(200).send(successJson(updated));
-  } catch (error) {
-    res.status(400).send(errorJson("Failed to update event"));
   }
-});
+);
 
-eventRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
-  try {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const deleted = await eventControllers.deleteEvent(id);
-    if (!deleted) {
-      res.status(404).send(errorJson("Event not found"));
-      return;
+eventRouter.delete(
+  "/:id",
+  verifyToken,
+  requireAdmin,
+  async (req: Request<{ id: string }>, res) => {
+    try {
+      const id = new mongoose.Types.ObjectId(req.params.id);
+      const deleted = await eventControllers.deleteEvent(id);
+      if (!deleted) {
+        res.status(404).send(errorJson("Event not found"));
+        return;
+      }
+      res.status(200).send(successJson({ deleted: true }));
+    } catch (error) {
+      res.status(400).send(errorJson("Failed to delete event"));
     }
-    res.status(200).send(successJson({ deleted: true }));
-  } catch (error) {
-    res.status(400).send(errorJson("Failed to delete event"));
   }
-});
+);
 
 export default eventRouter;

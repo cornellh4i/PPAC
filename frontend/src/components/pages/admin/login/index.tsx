@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../../../../firebase/config';
 import { isAllowedAdminEmail } from '../adminAccess';
+import { syncUserInBackend } from '../../../../services/authService';
 import './index.scss';
 
 const AdminLogin: React.FC = () => {
@@ -20,14 +21,16 @@ const AdminLogin: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) return;
 
-      if (isAllowedAdminEmail(user.email)) {
-        navigate('/admin', { replace: true });
-        return;
-      }
+      void (async () => {
+        const token = await user.getIdToken();
+        if (await isAllowedAdminEmail(token)) {
+          navigate('/admin', { replace: true });
+          return;
+        }
 
-      void signOut(auth!).finally(() => {
+        await signOut(auth!);
         setError('This account is not allowed to access the admin dashboard.');
-      });
+      })();
     });
     return () => unsubscribe();
   }, [navigate]);
@@ -43,13 +46,18 @@ const AdminLogin: React.FC = () => {
 
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
+      const token = await userCredential.user.getIdToken();
 
-      if (!isAllowedAdminEmail(userCredential.user.email)) {
+      if (!(await isAllowedAdminEmail(token))) {
         await signOut(auth);
         setError('This account is not allowed to access the admin dashboard.');
         return;
       }
 
+      await syncUserInBackend(token, {
+        name: userCredential.user.displayName || undefined,
+        role: 'admin',
+      });
       navigate('/admin', { replace: true });
     } catch (err) {
       setError((err as Error).message);

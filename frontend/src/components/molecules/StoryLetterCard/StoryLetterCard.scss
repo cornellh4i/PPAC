@@ -1,0 +1,52 @@
+.storyLetterCard {
+  background: var(--card-bg, #fffefc);
+  border-radius: 4px;
+  padding: 24px 22px 20px;
+  box-shadow: var(--shadow-card, 0 0 2px rgba(200, 200, 200, 0.35));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 190px;
+}
+
+.storyLetterCard__text {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.storyLetterCard__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.storyLetterCard__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--light-pink);
+  color: var(--dark-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.storyLetterCard__name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 import { Story, StoryModel } from "./models";
 
-const getStories = async () => StoryModel.find().sort({ createdAt: -1 });
+const getStories = async (filter: Partial<Pick<Story, "status">> = {}) =>
+  StoryModel.find(filter).sort({ createdAt: -1 });
 
 const getStoryById = async (id: mongoose.Types.ObjectId) =>
   StoryModel.findById(id);

@@ -27,9 +27,21 @@ const API_URL =
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 
 type Testimonial = {
-  id: number;
+  _id: string;
   quote: string;
   author: string;
+};
+
+type FaqItem = {
+  _id: string;
+  question: string;
+  answer: string;
+};
+
+type PresidentsLetter = {
+  paragraphs: string[];
+  closing?: string;
+  signature?: string;
 };
 
 type SubmissionType =
@@ -40,24 +52,36 @@ type SubmissionType =
   | "partnership"
   | "other";
 
-const testimonials: Testimonial[] = [
+const DEFAULT_LETTER_PARAGRAPHS = [
+  "The Pelvic Pain Association at Cornell is committed to raising awareness, reducing stigma, and improving education surrounding pelvic pain and reproductive health conditions. Pelvic pain spans across conditions like endometriosis, PCOS, vulvodynia, and other various chronic disorders, and affects 1 out of 7 women of childbearing age in the United States.",
+  "However, reproductive health issues remain widely misunderstood and underdiagnosed. Many people experience diagnosis delays, limited access to care, and challenges in navigating their academic, personal, and social life because of their symptoms. At PPAC, we hope to address these gaps through our three pillars: advocacy, education, and community-building. We host monthly educational workshops, collaborate with campus and community organizations, and create spaces for open conversation around pelvic pain and reproductive health. We aim to empower individuals with knowledge, connect them to resources in the Cornell and Ithaca community, and foster a supportive and informed community.",
+  "In collaboration with Hack4Impact at Cornell, this website serves as a centralized hub for our initiatives, educational resources, and opportunities to get involved. By combining advocacy with technology, we aim to make pelvic pain and reproductive health education more accessible and continue pushing for meaningful change in how these conditions are understood and treated.",
+];
+
+const DEFAULT_FAQ_ITEMS: { _id: string; question: string; answer: string }[] = [
   {
-    id: 1,
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
+    _id: "default-1",
+    question: "Where do we meet?",
+    answer:
+      "E-board meetings are every Tuesday @ 3 pm Phillips Hall 200. G-body meetings take place every Tuesday @ 5 pm Upson Hall 420.",
   },
   {
-    id: 2,
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
+    _id: "default-2",
+    question: "What is PPAC’s mission?",
+    answer:
+      "Our club aims to raise awareness about pelvic pain, reduce stigma, and create a supportive educational space. We focus on learning, advocacy, resource-sharing, and helping students feel less alone when discussing pelvic health.",
   },
   {
-    id: 3,
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
+    _id: "default-3",
+    question: "Do I need to have pelvic pain to join?",
+    answer:
+      "No. Anyone interested in learning about pelvic health, chronic pain, healthcare advocacy, public health, or patient support is welcome to join.",
+  },
+  {
+    _id: "default-4",
+    question: "Is this club only for medical or pre-health students?",
+    answer:
+      "No. While pre-health students may be interested, this club is open to everyone. Pelvic pain is connected to healthcare, education, stigma, mental health, accessibility, and advocacy, so students from many backgrounds can contribute.",
   },
 ];
 
@@ -66,6 +90,11 @@ const Home: React.FC = () => {
   const attachmentInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [heroPhotoUrl, setHeroPhotoUrl] = useState(heroPhoto);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
+  const [presidentsLetter, setPresidentsLetter] =
+    useState<PresidentsLetter | null>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -98,6 +127,67 @@ const Home: React.FC = () => {
     }, 15000);
 
     return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const fetchHeroPhoto = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/community?section=hero`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const raw: any[] = json.data ?? json;
+        if (raw.length > 0) setHeroPhotoUrl(raw[0].imageUrl);
+      } catch (err) {
+        console.error("Failed to fetch hero photo:", err);
+      }
+    };
+
+    fetchHeroPhoto();
+  }, []);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/testimonials`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setTestimonials(json.data ?? []);
+      } catch (err) {
+        console.error("Failed to fetch testimonials:", err);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  useEffect(() => {
+    const fetchFaqItems = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/faq`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        setFaqItems(json.data ?? []);
+      } catch (err) {
+        console.error("Failed to fetch FAQ items:", err);
+      }
+    };
+
+    fetchFaqItems();
+  }, []);
+
+  useEffect(() => {
+    const fetchPresidentsLetter = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/presidents-letter`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.data) setPresidentsLetter(json.data);
+      } catch (err) {
+        console.error("Failed to fetch presidents letter:", err);
+      }
+    };
+
+    fetchPresidentsLetter();
   }, []);
 
   const getTestimonialPosition = (
@@ -258,7 +348,7 @@ const Home: React.FC = () => {
 
             <img
               className="home__hero-photo"
-              src={heroPhoto}
+              src={heroPhotoUrl}
               alt="Members of the Pelvic Pain Association at Cornell"
             />
           </div>
@@ -412,7 +502,7 @@ const Home: React.FC = () => {
 
             return (
               <button
-                key={testimonial.id}
+                key={testimonial._id}
                 type="button"
                 className={`home__testimonial-card home__testimonial-card--${position}`}
                 onClick={() => {
@@ -465,51 +555,17 @@ const Home: React.FC = () => {
         >
           <article className="home__letter-card">
             <div className="home__letter-copy">
-              <p>
-                The Pelvic Pain Association at Cornell is
-                committed to raising awareness, reducing stigma,
-                and improving education surrounding pelvic pain
-                and reproductive health conditions. Pelvic pain
-                spans across conditions like endometriosis, PCOS,
-                vulvodynia, and other various chronic disorders,
-                and affects 1 out of 7 women of childbearing age in
-                the United States.
-              </p>
-
-              <p>
-                However, reproductive health issues remain widely
-                misunderstood and underdiagnosed. Many people
-                experience diagnosis delays, limited access to
-                care, and challenges in navigating their academic,
-                personal, and social life because of their
-                symptoms. At PPAC, we hope to address these gaps
-                through our three pillars: advocacy, education,
-                and community-building. We host monthly
-                educational workshops, collaborate with campus
-                and community organizations, and create spaces
-                for open conversation around pelvic pain and
-                reproductive health. We aim to empower individuals
-                with knowledge, connect them to resources in the
-                Cornell and Ithaca community, and foster a
-                supportive and informed community.
-              </p>
-
-              <p>
-                In collaboration with Hack4Impact at Cornell, this
-                website serves as a centralized hub for our
-                initiatives, educational resources, and
-                opportunities to get involved. By combining
-                advocacy with technology, we aim to make pelvic
-                pain and reproductive health education more
-                accessible and continue pushing for meaningful
-                change in how these conditions are understood and
-                treated.
-              </p>
+              {(presidentsLetter?.paragraphs?.length
+                ? presidentsLetter.paragraphs
+                : DEFAULT_LETTER_PARAGRAPHS
+              ).map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
             </div>
 
             <div className="home__letter-signature">
-              <p>Sincerely,</p>
-              <p>PPAC Eboard</p>
+              <p>{presidentsLetter?.closing ?? "Sincerely,"}</p>
+              <p>{presidentsLetter?.signature ?? "PPAC Eboard"}</p>
             </div>
           </article>
 
@@ -788,75 +844,19 @@ const Home: React.FC = () => {
           </h2>
 
           <div className="home__faq-list">
-            <article className="home__faq-item">
-              <h3 className="home__faq-question">
-                Where do we meet?
-              </h3>
+            {(faqItems.length ? faqItems : DEFAULT_FAQ_ITEMS).map((faqItem) => (
+              <article className="home__faq-item" key={faqItem._id}>
+                <h3 className="home__faq-question">
+                  {faqItem.question}
+                </h3>
 
-              <div className="home__faq-answer">
-                <p>
-                  E-board meetings are{" "}
-                  <span className="home__faq-highlight">
-                    every Tuesday @ 3 pm Phillips Hall 200.
-                  </span>
-                </p>
-
-                <p>
-                  G-body meetings take place{" "}
-                  <span className="home__faq-highlight">
-                    every Tuesday @ 5 pm Upson Hall 420.
-                  </span>
-                </p>
-              </div>
-            </article>
-
-            <article className="home__faq-item">
-              <h3 className="home__faq-question">
-                What is PPAC’s mission?
-              </h3>
-
-              <div className="home__faq-answer">
-                <p>
-                  Our club aims to raise awareness about pelvic
-                  pain, reduce stigma, and create a supportive
-                  educational space. We focus on learning,
-                  advocacy, resource-sharing, and helping students
-                  feel less alone when discussing pelvic health.
-                </p>
-              </div>
-            </article>
-
-            <article className="home__faq-item">
-              <h3 className="home__faq-question">
-                Do I need to have pelvic pain to join?
-              </h3>
-
-              <div className="home__faq-answer">
-                <p>
-                  No. Anyone interested in learning about pelvic
-                  health, chronic pain, healthcare advocacy,
-                  public health, or patient support is welcome to
-                  join.
-                </p>
-              </div>
-            </article>
-
-            <article className="home__faq-item">
-              <h3 className="home__faq-question">
-                Is this club only for medical or pre-health
-                students?
-              </h3>
-
-              <div className="home__faq-answer">
-                <p>
-                  No. While pre-health students may be interested,
-                  this club is open to everyone. Pelvic pain is
-                  connected to healthcare, education, stigma,
-                  mental health, accessibility, and advocacy, so
-                  students from many backgrounds can contribute.
-                </p>
-              </div>
-            </article>
+                <div className="home__faq-answer">
+                  {faqItem.answer.split(/\n+/).map((line, index) => (
+                    <p key={index}>{line}</p>
+                  ))}
+                </div>
+              </article>
+            ))}
           </div>
         </aside>
       </section>

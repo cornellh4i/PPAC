@@ -1,5 +1,5 @@
 .admin-sidebar {
-  width: 240px;
+  width: 200px;
   height: 100vh;
   box-sizing: border-box;
   background-color: #972c52;
@@ -8,6 +8,9 @@
   padding: 28px 16px;
   flex-shrink: 0;
   overflow: hidden;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
 
   &__header {
     display: flex;
@@ -42,9 +45,22 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex: 1;
     min-height: 0;
     overflow-y: auto;
+  }
+
+  &__section-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 12px 4px;
+
+    &:first-child {
+      padding-top: 0;
+    }
   }
 
   &__link {
@@ -77,25 +93,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-
-  &__account {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    color: #fff;
-    font-family: var(--font-body);
-  }
-
-  &__account-label {
-    font-size: 12px;
-    opacity: 0.75;
-  }
-
-  &__account-email {
-    font-size: 13px;
-    font-weight: 600;
-    word-break: break-word;
   }
 
   &__logout {

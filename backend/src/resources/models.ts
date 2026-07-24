@@ -37,6 +37,9 @@ class Resource {
   @prop({ required: true })
   public createdBy!: ObjectId;
 
+  @prop({ enum: ['published', 'draft'], default: 'published' })
+  public status!: 'published' | 'draft';
+
   @prop({ default: Date.now })
   public createdAt?: Date;
 }

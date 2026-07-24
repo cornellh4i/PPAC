@@ -6,7 +6,8 @@ import { EventModel, Event } from "./models";
  * Finds all event docs in DB
  * @returns promise with event docs or error
  */
-const getEvents = async (filter?: Record<string, unknown>) => EventModel.find({});
+const getEvents = async (filter: Record<string, unknown> = {}) =>
+  EventModel.find(filter).sort({ startTime: 1 });
 
 /**
  * Finds an event doc by id

@@ -1,30 +1,25 @@
+import { useEffect, useState } from "react";
 import ProfileCard from "../../molecules/ProfileCard/ProfileCard";
 import EventCard from "../../molecules/EventCard/EventCard";
-import officer1 from "../../../assets/team/asmita-mittal-headshot.png";
-import officer2 from "../../../assets/team/gracie-luong-headshot.jpg";
-import officer3 from "../../../assets/team/marianna-hodgins-headshot.jpg";
-import officer4 from "../../../assets/team/gillian-goldstein-headshot.jpg";
+import { TeamMember, getTeamMembers } from "../admin/team/teamApi";
 import "./community.scss";
 
-const officerData = [
-  {name: "Asmita Mittal", role: "President", imageUrl: officer1, linkedinUrl: "https://www.linkedin.com/in/asmita-mittal/"},
-  {name: "Gracie Luong", role: "Vice President", imageUrl: officer2, linkedinUrl: "https://www.linkedin.com/in/gracie-luong/"},
-  {name: "Marianna Hodgins", role: "Secretary", imageUrl: officer3, linkedinUrl: "https://www.linkedin.com/in/marianna-hodgins-48684631a/"},
-  {name: "Gillian Goldstein", role: "Treasurer", imageUrl: officer4, linkedinUrl: "https://www.linkedin.com/in/gillian-goldstein-338a57395/"}
-];
-
-const officers = officerData.map((officer, index) => ({
-  id: `officer-${index + 1}`,
-  ...officer,
-}));
-
-const speakers = Array.from({ length: 3 }, (_, index) => ({
-  id: `speaker-${index + 1}`,
-  name: "Corey Dresen",
-  role: "Physical Therapist",
-}));
-
 const Team: React.FC = () => {
+  const [officers, setOfficers] = useState<TeamMember[]>([]);
+  const [speakers, setSpeakers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const members = await getTeamMembers();
+        setOfficers(members.filter((m) => m.category === "officer"));
+        setSpeakers(members.filter((m) => m.category === "speaker"));
+      } catch (error) {
+        console.error("Failed to load team members:", error);
+      }
+    })();
+  }, []);
+
   return (
     <div className="community">
       <section className="community__intro">
@@ -35,10 +30,10 @@ const Team: React.FC = () => {
         <h2 className="community__heading">Our Officers</h2>
         <div className="community__grid">
           {officers.map((officer) => (
-            <ProfileCard 
-              key={officer.id} 
-              name={officer.name} 
-              role={officer.role} 
+            <ProfileCard
+              key={officer._id}
+              name={officer.name}
+              role={officer.role}
               imageUrl={officer.imageUrl}
               linkedinUrl={officer.linkedinUrl}
             />
@@ -50,7 +45,13 @@ const Team: React.FC = () => {
         <h2 className="community__heading">Our Speakers</h2>
         <div className="community__grid">
           {speakers.map((speaker) => (
-            <ProfileCard key={speaker.id} name={speaker.name} role={speaker.role} />
+            <ProfileCard
+              key={speaker._id}
+              name={speaker.name}
+              role={speaker.role}
+              imageUrl={speaker.imageUrl}
+              linkedinUrl={speaker.linkedinUrl}
+            />
           ))}
         </div>
       </section>
