@@ -1,136 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { auth } from '../../../../firebase/config';
+import { useEffect, useRef, useState } from "react";
+import { auth } from "../../../../firebase/config";
 import {
-  addAllowedAdminEmail,
-  getAllowedAdminEmails,
-  removeAllowedAdminEmail,
-} from '../adminAccess';
-import './index.scss';
+  CommunityPhoto,
+  getCommunityPhotos,
+  uploadCommunityPhoto,
+  updateCommunityPhoto,
+} from "../community/communityApi";
+import "./index.scss";
+
+const getToken = async (): Promise<string> => {
+  const currentUser = auth?.currentUser;
+  if (!currentUser) throw new Error("Not signed in");
+  return currentUser.getIdToken();
+};
 
 const AdminHome: React.FC = () => {
-  const [emails, setEmails] = useState<string[]>([]);
+  const [heroPhoto, setHeroPhoto] = useState<CommunityPhoto | null>(null);
   const [loading, setLoading] = useState(true);
-  const [newEmail, setNewEmail] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
 
-  const getToken = async (): Promise<string | null> => {
-    const currentUser = auth?.currentUser;
-    if (!currentUser) return null;
-    return currentUser.getIdToken();
-  };
-
-  const loadEmails = async () => {
+  const loadHeroPhoto = async () => {
     setLoading(true);
-    setError('');
+    setError(null);
     try {
-      const token = await getToken();
-      if (!token) throw new Error('Not signed in');
-      const list = await getAllowedAdminEmails(token);
-      setEmails(list);
+      const heroList = await getCommunityPhotos("hero");
+      setHeroPhoto(heroList[0] ?? null);
     } catch (err) {
-      setError((err as Error).message || 'Failed to load admin emails');
+      setError((err as Error).message || "Failed to load hero photo");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    void loadEmails();
+    void loadHeroPhoto();
   }, []);
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = newEmail.trim();
-    if (!trimmed) return;
+  const handleHeroFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
 
-    setSubmitting(true);
-    setError('');
+    setHeroUploading(true);
+    setError(null);
     try {
       const token = await getToken();
-      if (!token) throw new Error('Not signed in');
-      const list = await addAllowedAdminEmail(token, trimmed);
-      setEmails(list);
-      setNewEmail('');
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const saved = heroPhoto
+        ? await updateCommunityPhoto(token, heroPhoto._id, formData)
+        : await uploadCommunityPhoto(
+            token,
+            (() => {
+              formData.append("section", "hero");
+              return formData;
+            })(),
+          );
+      setHeroPhoto(saved);
     } catch (err) {
-      setError((err as Error).message || 'Failed to add admin email');
+      setError((err as Error).message || "Failed to upload hero photo");
     } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (email: string) => {
-    setError('');
-    try {
-      const token = await getToken();
-      if (!token) throw new Error('Not signed in');
-      const list = await removeAllowedAdminEmail(token, email);
-      setEmails(list);
-    } catch (err) {
-      setError((err as Error).message || 'Failed to remove admin email');
+      setHeroUploading(false);
     }
   };
 
   return (
     <div className="admin-home">
+      {error && <p className="admin-home__error">{error}</p>}
+
       <div className="admin-home__card">
         <div className="admin-home__card-header">
-          <span className="admin-home__card-title">Admin access</span>
+          <span className="admin-home__card-title">Hero photo</span>
         </div>
-
-        <form className="admin-home__toolbar" onSubmit={handleAdd}>
-          <input
-            className="admin-home__input"
-            type="email"
-            placeholder="Add admin email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            required
-          />
-          <button className="admin-home__add-btn" type="submit" disabled={submitting}>
-            + Add admin
-          </button>
-        </form>
-
-        {error && <p className="admin-home__error">{error}</p>}
-
-        <ul className="admin-home__list">
-          {loading && <li className="admin-home__empty">Loading…</li>}
-          {!loading && emails.length === 0 && (
-            <li className="admin-home__empty">No admin emails found.</li>
+        <div className="admin-home__hero">
+          {loading ? (
+            <div
+              className="admin-home__hero-image admin-home__hero-image--empty"
+              aria-hidden="true"
+            />
+          ) : heroPhoto ? (
+            <img
+              className="admin-home__hero-image"
+              src={heroPhoto.imageUrl}
+              alt="Hero"
+            />
+          ) : (
+            <div
+              className="admin-home__hero-image admin-home__hero-image--empty"
+              aria-hidden="true"
+            />
           )}
-          {!loading &&
-            emails.map((email) => (
-              <li key={email} className="admin-home__row">
-                <span className="admin-home__email">{email}</span>
-                <button
-                  className="admin-home__action-btn"
-                  type="button"
-                  aria-label={`Remove ${email}`}
-                  onClick={() => handleDelete(email)}
-                  disabled={emails.length <= 1}
-                  title={emails.length <= 1 ? 'At least one admin email is required' : undefined}
-                >
-                  <TrashIcon />
-                </button>
-              </li>
-            ))}
-        </ul>
+          <div>
+            <p className="admin-home__hero-caption">
+              Shown at the top of the public home page.
+            </p>
+            <button
+              className="admin-home__add-btn"
+              type="button"
+              onClick={() => heroFileInputRef.current?.click()}
+              disabled={heroUploading}
+            >
+              {heroUploading
+                ? "Uploading…"
+                : heroPhoto
+                  ? "Replace photo"
+                  : "Upload photo"}
+            </button>
+            <input
+              ref={heroFileInputRef}
+              className="admin-home__hidden-file-input"
+              type="file"
+              accept="image/*"
+              onChange={handleHeroFileChange}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
 };
-
-const TrashIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden>
-    <path
-      d="M2 4h11M5 4V2.5h5V4M6 7v4M9 7v4M3 4l1 9h7l1-9"
-      stroke="#9ca3af"
-      strokeWidth="1.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 export default AdminHome;

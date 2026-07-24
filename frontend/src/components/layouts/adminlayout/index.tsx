@@ -9,7 +9,8 @@ import './index.scss';
 import avatar from '../../../assets/icons/heart_profile.png';
 
 const adminPageLabels: Record<string, string> = {
-  '/admin': 'Home',
+  '/admin': 'Admin Settings',
+  '/admin/home': 'Home',
   '/admin/events': 'Events',
   '/admin/resources': 'Resources',
   '/admin/community': 'Community',

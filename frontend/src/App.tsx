@@ -11,6 +11,7 @@ import AdminLayout from './components/layouts/adminlayout';
 import Providers from './components/pages/providers';
 import AdminLogin from './components/pages/admin/login';
 import AdminHome from './components/pages/admin/home';
+import AdminSettings from './components/pages/admin/settings';
 import AdminEvents from './components/pages/admin/events';
 import AdminResources from './components/pages/admin/resources';
 import AdminCommunity from './components/pages/admin/community';
@@ -58,7 +59,8 @@ const App: React.FC = () => {
       path: '/admin',
       element: <AdminLayout />,
       children: [
-        { index: true, element: <AdminHome /> },
+        { index: true, element: <AdminSettings /> },
+        { path: 'home', element: <AdminHome /> },
         { path: 'events', element: <AdminEvents /> },
         { path: 'resources', element: <AdminResources /> },
         { path: 'community', element: <AdminCommunity /> }

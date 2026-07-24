@@ -6,8 +6,6 @@ import AddStoryModal from "./AddStoryModal";
 import {
   CommunityPhoto,
   getCommunityPhotos,
-  uploadCommunityPhoto,
-  updateCommunityPhoto,
   deleteCommunityPhoto,
 } from "./communityApi";
 import {
@@ -40,15 +38,12 @@ const formatDate = (value?: string): string => {
 };
 
 const AdminCommunity: React.FC = () => {
-  const [heroPhoto, setHeroPhoto] = useState<CommunityPhoto | null>(null);
   const [scrapbookPhotos, setScrapbookPhotos] = useState<CommunityPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [heroUploading, setHeroUploading] = useState(false);
   const [editTarget, setEditTarget] = useState<CommunityPhoto | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<CommunityPhoto | null>(null);
-  const heroFileInputRef = useRef<HTMLInputElement>(null);
 
   const [stories, setStories] = useState<Story[]>([]);
   const [storiesLoading, setStoriesLoading] = useState(true);
@@ -119,11 +114,7 @@ const AdminCommunity: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [heroList, scrapbookList] = await Promise.all([
-        getCommunityPhotos("hero"),
-        getCommunityPhotos("scrapbook"),
-      ]);
-      setHeroPhoto(heroList[0] ?? null);
+      const scrapbookList = await getCommunityPhotos("scrapbook");
       setScrapbookPhotos(scrapbookList);
     } catch (err) {
       setError((err as Error).message || "Failed to load community photos");
@@ -135,37 +126,6 @@ const AdminCommunity: React.FC = () => {
   useEffect(() => {
     void loadPhotos();
   }, []);
-
-  const handleHeroFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-
-    setHeroUploading(true);
-    setError(null);
-    try {
-      const token = await getToken();
-      const formData = new FormData();
-      formData.append("image", file);
-
-      const saved = heroPhoto
-        ? await updateCommunityPhoto(token, heroPhoto._id, formData)
-        : await uploadCommunityPhoto(
-            token,
-            (() => {
-              formData.append("section", "hero");
-              return formData;
-            })(),
-          );
-      setHeroPhoto(saved);
-    } catch (err) {
-      setError((err as Error).message || "Failed to upload hero photo");
-    } finally {
-      setHeroUploading(false);
-    }
-  };
 
   const handleCreate = (created: CommunityPhoto) => {
     setScrapbookPhotos((prev) => [...prev, created]);
@@ -198,50 +158,6 @@ const AdminCommunity: React.FC = () => {
     <>
       <div className="admin-community">
         {error && <p className="admin-community__error">{error}</p>}
-
-        <div className="admin-community__card">
-          <div className="admin-community__card-header">
-            <span className="admin-community__card-title">Hero photo</span>
-          </div>
-          <div className="admin-community__hero">
-            {heroPhoto ? (
-              <img
-                className="admin-community__hero-image"
-                src={heroPhoto.imageUrl}
-                alt="Hero"
-              />
-            ) : (
-              <div
-                className="admin-community__hero-image admin-community__hero-image--empty"
-                aria-hidden="true"
-              />
-            )}
-            <div>
-              <p className="admin-community__hero-caption">
-                Shown at the top of the public home page.
-              </p>
-              <button
-                className="admin-community__add-btn"
-                type="button"
-                onClick={() => heroFileInputRef.current?.click()}
-                disabled={heroUploading}
-              >
-                {heroUploading
-                  ? "Uploading…"
-                  : heroPhoto
-                    ? "Replace photo"
-                    : "Upload photo"}
-              </button>
-              <input
-                ref={heroFileInputRef}
-                className="admin-community__hidden-file-input"
-                type="file"
-                accept="image/*"
-                onChange={handleHeroFileChange}
-              />
-            </div>
-          </div>
-        </div>
 
         <div className="admin-community__card">
           <div className="admin-community__card-header">
