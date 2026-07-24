@@ -14,6 +14,7 @@ const adminPageLabels: Record<string, string> = {
   '/admin/events': 'Events',
   '/admin/resources': 'Resources',
   '/admin/community': 'Community',
+  '/admin/team': 'Team',
 };
 
 const AdminLayout: React.FC = () => {

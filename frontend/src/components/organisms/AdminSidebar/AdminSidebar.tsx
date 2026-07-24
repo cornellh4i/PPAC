@@ -7,6 +7,7 @@ const pageNavItems = [
   { label: "Events", path: "/admin/events" },
   { label: "Resources", path: "/admin/resources" },
   { label: "Community", path: "/admin/community" },
+  { label: "Team", path: "/admin/team" },
 ];
 
 const settingsNavItems = [{ label: "Admin Settings", path: "/admin" }];

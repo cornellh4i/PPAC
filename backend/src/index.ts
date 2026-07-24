@@ -11,6 +11,7 @@ import communityRouter from "./community/views";
 import testimonialRouter from "./testimonials/views";
 import faqRouter from "./faq/views";
 import presidentsLetterRouter from "./presidentsLetter/views";
+import teamMemberRouter from "./team-members/views";
 import swaggerUI from "swagger-ui-express";
 import spec from "../api-spec.json";
 import { dbConnect } from "./database";
@@ -42,6 +43,7 @@ apiRouter.use("/community", communityRouter);
 apiRouter.use("/testimonials", testimonialRouter);
 apiRouter.use("/faq", faqRouter);
 apiRouter.use("/presidents-letter", presidentsLetterRouter);
+apiRouter.use("/team-members", teamMemberRouter);
 apiRouter.use("/email", emailRouter);
 apiRouter.use("/chat", chatbotRouter);
 
