@@ -1,13 +1,266 @@
 .student-stories {
   min-height: calc(100vh - 110px);
-  padding: 40px;
+  padding: 40px var(--page-padding-x, 50px) 60px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 56px;
+}
+
+.student-stories__intro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.student-stories__sparkle {
+  position: absolute;
+  top: -12px;
+  left: -8px;
+  width: 32px;
+  height: auto;
+  opacity: 0.6;
+}
+
+.student-stories__introIcon {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  opacity: 0.35;
+
+  &--right {
+    top: -6px;
+    right: -8px;
+  }
+}
+
+.student-stories__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-regular);
+  font-size: var(--font-size-subheading);
+  color: var(--black);
+}
+
+.student-stories__subtitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  color: var(--text-muted);
+}
+
+.student-stories__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.student-stories__headerIcon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.85;
+}
+
+.student-stories__headerTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-regular);
+  font-size: 28px;
+  color: var(--dark-pink);
+}
+
+.student-stories__headerCaption {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--font-size-body);
+  color: var(--text-muted);
+}
+
+.student-stories__scrapbook {
+  position: relative;
+  background: var(--section-bg);
+  border-radius: var(--section-radius);
+  box-shadow: var(--shadow-inset-panel);
+  padding: 40px 48px;
+}
+
+.student-stories__scrapbookIcon {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  opacity: 0.5;
+  top: 24px;
+
+  &--left {
+    left: 24px;
+  }
+
+  &--right {
+    right: 24px;
+    bottom: 24px;
+    top: auto;
+    width: 36px;
+    height: 36px;
+    opacity: 0.35;
+  }
+}
+
+.student-stories__polaroidGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.student-stories__letters {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  padding: 0 64px;
+}
+
+.student-stories__lettersBg {
+  position: absolute;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+
+  &--quote {
+    width: 40px;
+    height: 40px;
+    top: -8px;
+    left: 8px;
+  }
+
+  &--heart {
+    width: 90px;
+    height: auto;
+    top: -20px;
+    right: 90px;
+    opacity: 0.15;
+  }
+
+  &--leaf {
+    width: 54px;
+    height: 54px;
+    left: 8px;
+    bottom: 100px;
+  }
+
+  &--flower {
+    width: 60px;
+    height: 60px;
+    right: 8px;
+    top: 40%;
+  }
+
+  &--flowerStem {
+    width: 50px;
+    height: 50px;
+    left: -8px;
+    bottom: -12px;
+  }
+
+  &--circle {
+    width: 40px;
+    height: 40px;
+    right: 16px;
+    bottom: 16px;
+    opacity: 0.2;
+  }
+}
+
+.student-stories__lettersHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.student-stories__lettersTitle {
+  margin: 0 0 6px;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-regular);
+  font-size: 24px;
+  color: var(--dark-pink);
+}
+
+.student-stories__lettersCaption {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 460px;
+}
+
+.student-stories__shareButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-stories__lettersIcon {
+  position: absolute;
+  right: 0;
+  top: 60px;
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.student-stories__lettersGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.student-stories__status {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .student-stories__polaroidGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .student-stories__lettersGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
   .student-stories {
-    padding: 20px;
+    padding: 20px 20px 40px;
+    gap: 40px;
+  }
+
+  .student-stories__scrapbook {
+    padding: 32px 20px;
+  }
+
+  .student-stories__letters {
+    padding: 0;
+  }
+
+  .student-stories__lettersIcon,
+  .student-stories__lettersBg {
+    display: none;
   }
 }
