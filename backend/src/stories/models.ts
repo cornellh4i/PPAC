@@ -14,6 +14,9 @@ export class Story {
   @prop({ required: true, default: false })
   public isAnonymous!: boolean;
 
+  @prop({ required: true, enum: ["pending", "published"], default: "pending" })
+  public status!: "pending" | "published";
+
   @prop({ default: Date.now })
   public createdAt!: Date;
 
