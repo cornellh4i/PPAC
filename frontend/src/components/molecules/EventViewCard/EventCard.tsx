@@ -140,7 +140,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         </a>
       </div>
 
-      <div className="event-card__image">
+      {/* <div className="event-card__image">
         {event.imageUrl ? (
           <img
             src={event.imageUrl}
@@ -150,7 +150,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         ) : (
           <div className="event-card__image-fallback" aria-hidden="true" />
         )}
-      </div>
+      </div> */}
 
       {event.description && (
         <p className="event-card__description">{event.description}</p>
