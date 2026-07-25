@@ -3,6 +3,7 @@ import { Mail } from "lucide-react";
 import Button from "../../atoms/Button/Button";
 import PolaroidCard from "../../molecules/PolaroidCard/PolaroidCard";
 import StoryLetterCard from "../../molecules/StoryLetterCard/StoryLetterCard";
+import ShareStoryModal from "../../organisms/ShareStoryModal/ShareStoryModal";
 import squaresIcon from "../../../assets/community/icons/squares.svg";
 import notepadIcon from "../../../assets/community/icons/notepad.svg";
 import flowerBookIcon from "../../../assets/community/icons/flower-book.svg";
@@ -45,6 +46,7 @@ const StudentStories: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scrapbookPhotos, setScrapbookPhotos] = useState(SCRAPBOOK_PLACEHOLDERS);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -86,6 +88,23 @@ const StudentStories: React.FC = () => {
 
     fetchScrapbookPhotos();
   }, []);
+
+  const handleShareStory = async (payload: {
+    story: string;
+    name?: string;
+    isAnonymous: boolean;
+  }) => {
+    const res = await fetch(`${API_BASE}/api/stories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const json = await res.json().catch(() => null);
+      throw new Error(json?.error || "Failed to submit story");
+    }
+  };
 
   return (
     <div className="student-stories">
@@ -210,7 +229,11 @@ const StudentStories: React.FC = () => {
               find the words you might need today.
             </p>
           </div>
-          <Button variant="rounded" className="student-stories__shareButton">
+          <Button
+            variant="rounded"
+            className="student-stories__shareButton"
+            onClick={() => setIsShareModalOpen(true)}
+          >
             <Mail size={16} strokeWidth={2} />
             Share Your Story
           </Button>
@@ -247,6 +270,12 @@ const StudentStories: React.FC = () => {
           </div>
         )}
       </section>
+
+      <ShareStoryModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onSubmit={handleShareStory}
+      />
     </div>
   );
 };

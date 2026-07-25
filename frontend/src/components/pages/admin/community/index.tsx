@@ -229,6 +229,11 @@ const AdminCommunity: React.FC = () => {
             </button>
           </div>
 
+          <p className="admin-community__hint">
+            Submitted stories appear here, only stories with &ldquo;Published&rdquo;
+            status will appear on the website.
+          </p>
+
           {storiesError && (
             <p className="admin-community__error">{storiesError}</p>
           )}
