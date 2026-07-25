@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  FormEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../atoms/Button/Button";
 
@@ -21,10 +15,7 @@ import envelope5 from "../../../assets/home/envelope-5.png";
 
 import "./index.scss";
 
-const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8000";
-
-const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 type Testimonial = {
   _id: string;
@@ -47,7 +38,6 @@ type PresidentsLetter = {
 type SubmissionType =
   | "question"
   | "request"
-  | "testimonial"
   | "event"
   | "partnership"
   | "other";
@@ -87,7 +77,6 @@ const DEFAULT_FAQ_ITEMS: { _id: string; question: string; answer: string }[] = [
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const attachmentInputRef = useRef<HTMLInputElement>(null);
 
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [heroPhotoUrl, setHeroPhotoUrl] = useState(heroPhoto);
@@ -100,7 +89,6 @@ const Home: React.FC = () => {
   const [email, setEmail] = useState("");
   const [submissionType, setSubmissionType] =
     useState<SubmissionType>("question");
-  const [attachment, setAttachment] = useState<File | null>(null);
   const [message, setMessage] = useState("");
 
   const [formError, setFormError] = useState("");
@@ -109,20 +97,20 @@ const Home: React.FC = () => {
 
   const showPreviousTestimonial = () => {
     setActiveTestimonial((current) =>
-      current === 0 ? testimonials.length - 1 : current - 1
+      current === 0 ? testimonials.length - 1 : current - 1,
     );
   };
 
   const showNextTestimonial = () => {
     setActiveTestimonial((current) =>
-      current === testimonials.length - 1 ? 0 : current + 1
+      current === testimonials.length - 1 ? 0 : current + 1,
     );
   };
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setActiveTestimonial((current) =>
-        current === testimonials.length - 1 ? 0 : current + 1
+        current === testimonials.length - 1 ? 0 : current + 1,
       );
     }, 15000);
 
@@ -191,12 +179,10 @@ const Home: React.FC = () => {
   }, []);
 
   const getTestimonialPosition = (
-    testimonialIndex: number
+    testimonialIndex: number,
   ): "left" | "center" | "right" => {
     const previousIndex =
-      activeTestimonial === 0
-        ? testimonials.length - 1
-        : activeTestimonial - 1;
+      activeTestimonial === 0 ? testimonials.length - 1 : activeTestimonial - 1;
 
     if (testimonialIndex === activeTestimonial) {
       return "center";
@@ -209,46 +195,7 @@ const Home: React.FC = () => {
     return "right";
   };
 
-  const handleAttachmentChange = (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    const selectedFile = event.target.files?.[0] ?? null;
-
-    setFormError("");
-    setStatusMessage("");
-
-    if (!selectedFile) {
-      setAttachment(null);
-      return;
-    }
-
-    if (selectedFile.size > MAX_ATTACHMENT_SIZE) {
-      setAttachment(null);
-      setFormError(
-        "The selected file is too large. Please choose a file under 10 MB."
-      );
-
-      if (attachmentInputRef.current) {
-        attachmentInputRef.current.value = "";
-      }
-
-      return;
-    }
-
-    setAttachment(selectedFile);
-  };
-
-  const removeAttachment = () => {
-    setAttachment(null);
-
-    if (attachmentInputRef.current) {
-      attachmentInputRef.current.value = "";
-    }
-  };
-
-  const handleSubmit = async (
-    event: FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setFormError("");
@@ -269,20 +216,15 @@ const Home: React.FC = () => {
     try {
       setIsSubmitting(true);
 
-      const formData = new FormData();
-
-      formData.append("name", name.trim());
-      formData.append("email", email.trim());
-      formData.append("submissionType", submissionType);
-      formData.append("message", message.trim());
-
-      if (attachment) {
-        formData.append("attachment", attachment);
-      }
-
       const response = await fetch(`${API_URL}/api/email`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          submissionType,
+          message: message.trim(),
+        }),
       });
 
       if (!response.ok) {
@@ -293,16 +235,9 @@ const Home: React.FC = () => {
       setName("");
       setEmail("");
       setSubmissionType("question");
-      setAttachment(null);
       setMessage("");
-
-      if (attachmentInputRef.current) {
-        attachmentInputRef.current.value = "";
-      }
     } catch {
-      setFormError(
-        "We could not send your message. Please try again."
-      );
+      setFormError("We could not send your message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -310,24 +245,17 @@ const Home: React.FC = () => {
 
   return (
     <div className="home">
-      <section
-        className="home__hero"
-        aria-labelledby="home-hero-heading"
-      >
+      <section className="home__hero" aria-labelledby="home-hero-heading">
         <div className="home__hero-content">
           <div className="home__hero-text">
             <div className="home__hero-copy">
-              <h1
-                id="home-hero-heading"
-                className="home__hero-heading"
-              >
+              <h1 id="home-hero-heading" className="home__hero-heading">
                 End the silence around chronic pelvic pain.
               </h1>
 
               <p className="home__hero-subtitle">
-                Our community is dedicated to breaking stigma,
-                sharing knowledge, and supporting those impacted by
-                pelvic pain.
+                Our community is dedicated to breaking stigma, sharing
+                knowledge, and supporting those impacted by pelvic pain.
               </p>
             </div>
 
@@ -341,10 +269,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="home__hero-visual">
-            <div
-              className="home__hero-mat"
-              aria-hidden="true"
-            />
+            <div className="home__hero-mat" aria-hidden="true" />
 
             <img
               className="home__hero-photo"
@@ -360,10 +285,7 @@ const Home: React.FC = () => {
         className="home__assist"
         aria-labelledby="home-assist-heading"
       >
-        <h2
-          id="home-assist-heading"
-          className="home__assist-heading"
-        >
+        <h2 id="home-assist-heading" className="home__assist-heading">
           How Can We Assist You?
         </h2>
 
@@ -379,18 +301,16 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__assist-card-bottom">
-              <h3 className="home__assist-card-title">
-                3/20 Speaker Panel
-              </h3>
+              <h3 className="home__assist-card-title">3/20 Speaker Panel</h3>
 
               <div className="home__assist-actions home__assist-actions--event">
-                <Button
+                {/* <Button
                   variant="outline"
                   className="home__assist-button"
                   onClick={() => undefined}
                 >
                   Sign up!
-                </Button>
+                </Button> */}
 
                 <Button
                   variant="outline"
@@ -399,10 +319,7 @@ const Home: React.FC = () => {
                 >
                   <span>All events</span>
 
-                  <span
-                    className="home__assist-arrow"
-                    aria-hidden="true"
-                  >
+                  <span className="home__assist-arrow" aria-hidden="true">
                     →
                   </span>
                 </Button>
@@ -421,9 +338,7 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__assist-card-bottom">
-              <h3 className="home__assist-card-title">
-                Resources
-              </h3>
+              <h3 className="home__assist-card-title">Resources</h3>
 
               <div className="home__assist-actions">
                 <Button
@@ -433,10 +348,7 @@ const Home: React.FC = () => {
                 >
                   <span>Read more</span>
 
-                  <span
-                    className="home__assist-arrow"
-                    aria-hidden="true"
-                  >
+                  <span className="home__assist-arrow" aria-hidden="true">
                     →
                   </span>
                 </Button>
@@ -455,9 +367,7 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__assist-card-bottom">
-              <h3 className="home__assist-card-title">
-                Providers
-              </h3>
+              <h3 className="home__assist-card-title">Providers</h3>
 
               <div className="home__assist-actions">
                 <Button
@@ -467,10 +377,7 @@ const Home: React.FC = () => {
                 >
                   <span>Read more</span>
 
-                  <span
-                    className="home__assist-arrow"
-                    aria-hidden="true"
-                  >
+                  <span className="home__assist-arrow" aria-hidden="true">
                     →
                   </span>
                 </Button>
@@ -491,13 +398,9 @@ const Home: React.FC = () => {
           What People Are Saying
         </h2>
 
-        <div
-          className="home__testimonial-carousel"
-          aria-live="polite"
-        >
+        <div className="home__testimonial-carousel" aria-live="polite">
           {testimonials.map((testimonial, index) => {
-            const position =
-              getTestimonialPosition(index);
+            const position = getTestimonialPosition(index);
             const isActive = position === "center";
 
             return (
@@ -519,9 +422,7 @@ const Home: React.FC = () => {
                     ? `Current testimonial from ${testimonial.author}`
                     : `Show testimonial from ${testimonial.author}`
                 }
-                aria-current={
-                  isActive ? "true" : undefined
-                }
+                aria-current={isActive ? "true" : undefined}
               >
                 <blockquote className="home__testimonial-quote">
                   “{testimonial.quote}”
@@ -541,10 +442,7 @@ const Home: React.FC = () => {
         className="home__presidents"
         aria-labelledby="home-presidents-heading"
       >
-        <h2
-          id="home-presidents-heading"
-          className="home__presidents-heading"
-        >
+        <h2 id="home-presidents-heading" className="home__presidents-heading">
           A Letter From Our Presidents
         </h2>
 
@@ -613,13 +511,11 @@ const Home: React.FC = () => {
       >
         <div className="home__contact-panel">
           <header className="home__contact-header">
-            <h2 className="home__contact-title">
-              We’d Love To Hear From You.
-            </h2>
+            <h2 className="home__contact-title">We’d Love To Hear From You.</h2>
 
             <p className="home__contact-intro">
-              Whether you have any questions, requests, or just
-              want to chat, we’d be happy to talk.
+              Whether you have any questions, requests, or just want to chat,
+              we’d be happy to talk.
             </p>
           </header>
 
@@ -629,14 +525,8 @@ const Home: React.FC = () => {
             noValidate
           >
             <div className="home__contact-field">
-              <label
-                className="home__contact-label"
-                htmlFor="contact-name"
-              >
-                Name{" "}
-                <span className="home__required-mark">
-                  *
-                </span>
+              <label className="home__contact-label" htmlFor="contact-name">
+                Name <span className="home__required-mark">*</span>
               </label>
 
               <input
@@ -653,14 +543,8 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__contact-field">
-              <label
-                className="home__contact-label"
-                htmlFor="contact-email"
-              >
-                Email address{" "}
-                <span className="home__required-mark">
-                  *
-                </span>
+              <label className="home__contact-label" htmlFor="contact-email">
+                Email address <span className="home__required-mark">*</span>
               </label>
 
               <input
@@ -677,10 +561,7 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__contact-field">
-              <label
-                className="home__contact-label"
-                htmlFor="submission-type"
-              >
+              <label className="home__contact-label" htmlFor="submission-type">
                 Type of submission
               </label>
 
@@ -690,105 +571,28 @@ const Home: React.FC = () => {
                   className="home__contact-select"
                   value={submissionType}
                   onChange={(event) => {
-                    setSubmissionType(
-                      event.target.value as SubmissionType
-                    );
+                    setSubmissionType(event.target.value as SubmissionType);
                     setFormError("");
                   }}
                 >
-                  <option value="question">
-                    General question
-                  </option>
+                  <option value="question">General question</option>
 
-                  <option value="request">
-                    Request
-                  </option>
+                  <option value="request">Request</option>
 
-                  <option value="testimonial">
-                    Share a testimonial
-                  </option>
-
-                  <option value="event">
-                    Event inquiry
-                  </option>
+                  <option value="event">Event inquiry</option>
 
                   <option value="partnership">
                     Partnership or collaboration
                   </option>
 
-                  <option value="other">
-                    Other
-                  </option>
+                  <option value="other">Other</option>
                 </select>
               </div>
             </div>
 
             <div className="home__contact-field">
-              <span className="home__contact-label">
-                Attachment
-              </span>
-
-              <label
-                className={`home__file-upload ${
-                  attachment
-                    ? "home__file-upload--selected"
-                    : ""
-                }`}
-                htmlFor="contact-attachment"
-              >
-                <span
-                  className="home__file-upload-icon"
-                  aria-hidden="true"
-                >
-                  ↑
-                </span>
-
-                <span className="home__file-upload-copy">
-                  <span className="home__file-upload-title">
-                    {attachment
-                      ? attachment.name
-                      : "Upload a file or image"}
-                  </span>
-
-                  <span className="home__file-upload-help">
-                    PNG, JPG, PDF, DOC, or DOCX up to 10 MB
-                  </span>
-                </span>
-
-                <span className="home__file-upload-action">
-                  Browse
-                </span>
-              </label>
-
-              <input
-                ref={attachmentInputRef}
-                id="contact-attachment"
-                className="home__file-input"
-                type="file"
-                accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,image/png,image/jpeg,application/pdf"
-                onChange={handleAttachmentChange}
-              />
-
-              {attachment && (
-                <button
-                  type="button"
-                  className="home__remove-file"
-                  onClick={removeAttachment}
-                >
-                  Remove attachment
-                </button>
-              )}
-            </div>
-
-            <div className="home__contact-field">
-              <label
-                className="home__contact-label"
-                htmlFor="contact-message"
-              >
-                How can we help?{" "}
-                <span className="home__required-mark">
-                  *
-                </span>
+              <label className="home__contact-label" htmlFor="contact-message">
+                How can we help? <span className="home__required-mark">*</span>
               </label>
 
               <textarea
@@ -804,20 +608,13 @@ const Home: React.FC = () => {
             </div>
 
             <div className="home__contact-form-footer">
-              <div
-                className="home__contact-feedback"
-                aria-live="polite"
-              >
+              <div className="home__contact-feedback" aria-live="polite">
                 {formError && (
-                  <p className="home__contact-error">
-                    {formError}
-                  </p>
+                  <p className="home__contact-error">{formError}</p>
                 )}
 
                 {statusMessage && (
-                  <p className="home__contact-success">
-                    {statusMessage}
-                  </p>
+                  <p className="home__contact-success">{statusMessage}</p>
                 )}
               </div>
 
@@ -832,23 +629,15 @@ const Home: React.FC = () => {
           </form>
         </div>
 
-        <aside
-          className="home__faq-panel"
-          aria-labelledby="home-faq-heading"
-        >
-          <h2
-            id="home-faq-heading"
-            className="home__faq-title"
-          >
+        <aside className="home__faq-panel" aria-labelledby="home-faq-heading">
+          <h2 id="home-faq-heading" className="home__faq-title">
             FAQ.
           </h2>
 
           <div className="home__faq-list">
             {(faqItems.length ? faqItems : DEFAULT_FAQ_ITEMS).map((faqItem) => (
               <article className="home__faq-item" key={faqItem._id}>
-                <h3 className="home__faq-question">
-                  {faqItem.question}
-                </h3>
+                <h3 className="home__faq-question">{faqItem.question}</h3>
 
                 <div className="home__faq-answer">
                   {faqItem.answer.split(/\n+/).map((line, index) => (
