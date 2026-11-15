@@ -13,9 +13,8 @@ interface EmailRequestBody {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Simple in-memory rate limit: at most MAX_PER_WINDOW sends per IP per window.
-// Resets when the server restarts, which is fine for spam protection. If the
-// app runs behind a proxy, enable `app.set("trust proxy", 1)` so req.ip is the
-// visitor's address.
+// Resets when the server restarts, which is fine for spam protection. req.ip is
+// the visitor's address because index.ts sets "trust proxy" (see TRUST_PROXY).
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_PER_WINDOW = 5;
 const recentSends = new Map<string, number[]>();

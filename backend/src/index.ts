@@ -23,6 +23,12 @@ import mongoose from 'mongoose';
 
 const app = express();
 
+// Behind a hosting proxy or load balancer, req.ip would be the proxy's address
+// for every visitor, so per-IP limits (e.g. the contact form) would be shared by
+// everyone. Trust one proxy hop by default; set TRUST_PROXY=0 if the server is
+// reached directly with no proxy in front of it.
+app.set("trust proxy", Number(process.env.TRUST_PROXY ?? 1));
+
 app.use(cors({
   origin: 'http://localhost:3000',  // Only allow your frontend
   credentials: true  // If you're using cookies/auth

@@ -11,5 +11,9 @@ MG_SENDING_KEY = "[optional: only if you use this instead of MG_API_KEY]"
 # Leave unset in production.
 # CONTACT_TO_EMAIL =
 
+# Number of proxies in front of the server (default 1). Use 0 if none, so the
+# contact form rate limit sees each visitor's real IP.
+# TRUST_PROXY = 1
+
 # Cloudinary (community page image uploads)
 CLOUDINARY_URL = "[cloudinary://<api_key>:<api_secret>@<cloud_name>]"
