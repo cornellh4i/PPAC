@@ -94,8 +94,9 @@ const EditResourceModal: React.FC<Props> = ({ resource, createdById, onClose, on
   const handleSave = async () => {
     if (!form.title.trim()) { setError('Title is required.'); return; }
     if (!form.description.trim()) { setError('Description is required.'); return; }
-    if (!form.link.trim()) { setError('Link is required.'); return; }
-    if (!isHttpUrl(form.link)) { setError('Link must be a full URL starting with http:// or https://'); return; }
+    // Books can rely on their "Read online" / "Borrow" links, so their main link is optional.
+    if (!form.link.trim() && form.type !== 'book') { setError('Link is required.'); return; }
+    if (form.link.trim() && !isHttpUrl(form.link)) { setError('Link must be a full URL starting with http:// or https://'); return; }
     const bookLinks = [...form.readAt, ...form.borrowAt];
     if (bookLinks.some((l) => !isHttpUrl(l.url))) {
       setError('Every "Read online" / "Borrow" link needs a full URL starting with http:// or https:// (remove empty rows).');
@@ -190,7 +191,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, createdById, onClose, on
               </select>
             </Field>
 
-            <Field label="Link (URL)">
+            <Field label={form.type === 'book' ? 'Link (URL, optional for books)' : 'Link (URL)'}>
               <input
                 className="erm__input"
                 value={form.link}

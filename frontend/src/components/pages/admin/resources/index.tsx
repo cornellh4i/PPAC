@@ -31,8 +31,17 @@ const AdminResources: React.FC = () => {
   const [adminMongoId, setAdminMongoId] = useState<string | undefined>();
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/resources`)
-      .then((res) => res.json())
+    // The admin list includes drafts, so it needs the admin token.
+    const loadResources = async () => {
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) throw new Error('Not signed in');
+      const res = await fetch(`${API_BASE}/api/resources/admin`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    };
+    loadResources()
       .then((json) => {
         const raw: any[] = json.data ?? json;
         setResources(
