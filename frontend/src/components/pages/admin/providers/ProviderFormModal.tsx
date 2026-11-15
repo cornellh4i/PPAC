@@ -263,10 +263,15 @@ const ProviderFormModal: React.FC<Props> = ({ provider, onClose, onSave }) => {
             />
           </div>
 
-          {error && <p className="pfm__error">{error}</p>}
         </div>
 
         <div className="pfm__footer">
+          {/* In the footer so it is always visible, even when the body scrolls. */}
+          {error && (
+            <p className="pfm__error pfm__error--footer" role="alert">
+              {error}
+            </p>
+          )}
           <button className="pfm__btn pfm__btn--cancel" type="button" onClick={onClose}>
             Cancel
           </button>
