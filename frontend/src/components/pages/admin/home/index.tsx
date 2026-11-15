@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useBlocker } from "react-router-dom";
+import DeleteConfirmModal from "../events/DeleteConfirmModal";
 import { auth } from "../../../../firebase/config";
 import {
   CommunityPhoto,
@@ -31,23 +33,14 @@ const getToken = async (): Promise<string> => {
   return currentUser.getIdToken();
 };
 
-const DEFAULT_TESTIMONIALS: { quote: string; author: string }[] = [
-  {
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
-  },
-  {
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
-  },
-  {
-    quote:
-      "The quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog the quick brown fox jumps over the lazy dog.",
-    author: "Albert Einstein",
-  },
-];
+// Items not saved to the server yet use ids with this prefix.
+const DRAFT_PREFIX = "draft-";
+const isDraftId = (id: string) => id.startsWith(DRAFT_PREFIX);
+let draftCounter = 0;
+const newDraftId = () => `${DRAFT_PREFIX}${Date.now()}-${draftCounter++}`;
+
+// Number of testimonial slots on the public Home page carousel.
+const TESTIMONIAL_SLOTS = 3;
 
 const AdminHome: React.FC = () => {
   const [heroPhoto, setHeroPhoto] = useState<CommunityPhoto | null>(null);
@@ -64,11 +57,22 @@ const AdminHome: React.FC = () => {
   const [savingTestimonialId, setSavingTestimonialId] = useState<
     string | null
   >(null);
+  // Per-item error messages, shown right under the item.
+  const [testimonialErrors, setTestimonialErrors] = useState<Record<string, string>>({});
+  // Last saved values per id, used to detect unsaved edits.
+  const [savedTestimonials, setSavedTestimonials] = useState<
+    Record<string, { quote: string; author: string }>
+  >({});
 
   const [faqItems, setFaqItems] = useState<FaqItem[]>([]);
   const [faqLoading, setFaqLoading] = useState(true);
   const [faqError, setFaqError] = useState<string | null>(null);
   const [savingFaqId, setSavingFaqId] = useState<string | null>(null);
+  const [faqErrors, setFaqErrors] = useState<Record<string, string>>({});
+  const [savedFaq, setSavedFaq] = useState<
+    Record<string, { question: string; answer: string }>
+  >({});
+  const [faqDeleteTarget, setFaqDeleteTarget] = useState<FaqItem | null>(null);
 
   const [letterText, setLetterText] = useState("");
   const [letterClosing, setLetterClosing] = useState("Sincerely,");
@@ -76,6 +80,11 @@ const AdminHome: React.FC = () => {
   const [letterLoading, setLetterLoading] = useState(true);
   const [letterSaving, setLetterSaving] = useState(false);
   const [letterError, setLetterError] = useState<string | null>(null);
+  const [savedLetter, setSavedLetter] = useState({
+    text: "",
+    closing: "Sincerely,",
+    signature: "PPAC Eboard",
+  });
 
   const loadHeroPhoto = async () => {
     setLoading(true);
@@ -94,16 +103,17 @@ const AdminHome: React.FC = () => {
     setTestimonialsLoading(true);
     setTestimonialsError(null);
     try {
-      let list = await getTestimonials();
-      if (list.length === 0) {
-        const token = await getToken();
-        list = await Promise.all(
-          DEFAULT_TESTIMONIALS.map((defaults, index) =>
-            createTestimonial(token, { ...defaults, order: index }),
-          ),
-        );
-      }
-      setTestimonials(list);
+      const list = await getTestimonials();
+      setSavedTestimonials(
+        Object.fromEntries(list.map((t) => [t._id, { quote: t.quote, author: t.author }])),
+      );
+      // Fill empty slots with blank drafts. Nothing is published until the
+      // admin fills one in and clicks Save.
+      const drafts: Testimonial[] = Array.from(
+        { length: Math.max(0, TESTIMONIAL_SLOTS - list.length) },
+        (_, i) => ({ _id: newDraftId(), quote: "", author: "", order: list.length + i }),
+      );
+      setTestimonials([...list, ...drafts]);
     } catch (err) {
       setTestimonialsError(
         (err as Error).message || "Failed to load testimonials"
@@ -119,6 +129,9 @@ const AdminHome: React.FC = () => {
     try {
       const list = await getFaqItems();
       setFaqItems(list);
+      setSavedFaq(
+        Object.fromEntries(list.map((f) => [f._id, { question: f.question, answer: f.answer }])),
+      );
     } catch (err) {
       setFaqError((err as Error).message || "Failed to load FAQ items");
     } finally {
@@ -131,9 +144,15 @@ const AdminHome: React.FC = () => {
     setLetterError(null);
     try {
       const data = await getPresidentsLetter();
-      setLetterText((data?.paragraphs ?? []).join("\n\n"));
-      setLetterClosing(data?.closing ?? "Sincerely,");
-      setLetterSignature(data?.signature ?? "PPAC Eboard");
+      const loaded = {
+        text: (data?.paragraphs ?? []).join("\n\n"),
+        closing: data?.closing ?? "Sincerely,",
+        signature: data?.signature ?? "PPAC Eboard",
+      };
+      setLetterText(loaded.text);
+      setLetterClosing(loaded.closing);
+      setLetterSignature(loaded.signature);
+      setSavedLetter(loaded);
     } catch (err) {
       setLetterError(
         (err as Error).message || "Failed to load presidents letter"
@@ -191,20 +210,48 @@ const AdminHome: React.FC = () => {
     );
   };
 
+  const setItemError = (
+    setter: React.Dispatch<React.SetStateAction<Record<string, string>>>,
+    id: string,
+    message: string | null,
+  ) =>
+    setter((current) => {
+      const next = { ...current };
+      if (message) next[id] = message;
+      else delete next[id];
+      return next;
+    });
+
+  const isTestimonialDirty = (t: Testimonial) => {
+    const saved = savedTestimonials[t._id];
+    if (!saved) return Boolean(t.quote.trim() || t.author.trim());
+    return saved.quote !== t.quote || saved.author !== t.author;
+  };
+
   const handleSaveTestimonial = async (testimonial: Testimonial) => {
+    if (!testimonial.quote.trim() || !testimonial.author.trim()) {
+      setItemError(setTestimonialErrors, testimonial._id, "Quote and author are both required.");
+      return;
+    }
     setSavingTestimonialId(testimonial._id);
-    setTestimonialsError(null);
+    setItemError(setTestimonialErrors, testimonial._id, null);
     try {
       const token = await getToken();
-      const saved = await updateTestimonial(token, testimonial._id, {
-        quote: testimonial.quote,
-        author: testimonial.author,
-      });
+      const payload = { quote: testimonial.quote, author: testimonial.author };
+      const saved = isDraftId(testimonial._id)
+        ? await createTestimonial(token, { ...payload, order: testimonial.order })
+        : await updateTestimonial(token, testimonial._id, payload);
       setTestimonials((current) =>
-        current.map((t) => (t._id === saved._id ? saved : t)),
+        current.map((t) => (t._id === testimonial._id ? saved : t)),
       );
+      setSavedTestimonials((current) => ({
+        ...current,
+        [saved._id]: { quote: saved.quote, author: saved.author },
+      }));
     } catch (err) {
-      setTestimonialsError(
+      setItemError(
+        setTestimonialErrors,
+        testimonial._id,
         (err as Error).message || "Failed to save testimonial",
       );
     } finally {
@@ -222,50 +269,65 @@ const AdminHome: React.FC = () => {
     );
   };
 
-  const handleAddFaqItem = async () => {
+  const isFaqDirty = (f: FaqItem) => {
+    const saved = savedFaq[f._id];
+    if (!saved) return true; // a new, unsaved question
+    return saved.question !== f.question || saved.answer !== f.answer;
+  };
+
+  // Adds a blank draft question; it is only published when saved.
+  const handleAddFaqItem = () => {
     setFaqError(null);
-    try {
-      const token = await getToken();
-      const created = await createFaqItem(token, {
-        question: "New question",
-        answer: "New answer",
-        order: faqItems.length,
-      });
-      setFaqItems((current) => [...current, created]);
-    } catch (err) {
-      setFaqError((err as Error).message || "Failed to add FAQ item");
-    }
+    setFaqItems((current) => [
+      ...current,
+      { _id: newDraftId(), question: "", answer: "", order: current.length },
+    ]);
   };
 
   const handleSaveFaqItem = async (faqItem: FaqItem) => {
+    if (!faqItem.question.trim() || !faqItem.answer.trim()) {
+      setItemError(setFaqErrors, faqItem._id, "Question and answer are both required.");
+      return;
+    }
     setSavingFaqId(faqItem._id);
-    setFaqError(null);
+    setItemError(setFaqErrors, faqItem._id, null);
     try {
       const token = await getToken();
-      const saved = await updateFaqItem(token, faqItem._id, {
-        question: faqItem.question,
-        answer: faqItem.answer,
-      });
+      const payload = { question: faqItem.question, answer: faqItem.answer };
+      const saved = isDraftId(faqItem._id)
+        ? await createFaqItem(token, { ...payload, order: faqItem.order })
+        : await updateFaqItem(token, faqItem._id, payload);
       setFaqItems((current) =>
-        current.map((f) => (f._id === saved._id ? saved : f)),
+        current.map((f) => (f._id === faqItem._id ? saved : f)),
       );
+      setSavedFaq((current) => ({
+        ...current,
+        [saved._id]: { question: saved.question, answer: saved.answer },
+      }));
     } catch (err) {
-      setFaqError((err as Error).message || "Failed to save FAQ item");
+      setItemError(setFaqErrors, faqItem._id, (err as Error).message || "Failed to save FAQ item");
     } finally {
       setSavingFaqId(null);
     }
   };
 
-  const handleDeleteFaqItem = async (id: string) => {
+  const handleDeleteFaqItem = async (faqItem: FaqItem) => {
+    setFaqDeleteTarget(null);
     setFaqError(null);
     const previous = faqItems;
-    setFaqItems((current) => current.filter((f) => f._id !== id));
+    setFaqItems((current) => current.filter((f) => f._id !== faqItem._id));
+    if (isDraftId(faqItem._id)) return; // never saved, nothing to delete
     try {
       const token = await getToken();
-      await deleteFaqItem(token, id);
+      await deleteFaqItem(token, faqItem._id);
+      setSavedFaq((current) => {
+        const next = { ...current };
+        delete next[faqItem._id];
+        return next;
+      });
     } catch (err) {
       setFaqItems(previous);
-      setFaqError((err as Error).message || "Failed to delete FAQ item");
+      setItemError(setFaqErrors, faqItem._id, (err as Error).message || "Failed to delete FAQ item");
     }
   };
 
@@ -283,9 +345,15 @@ const AdminHome: React.FC = () => {
         closing: letterClosing,
         signature: letterSignature,
       });
-      setLetterText((saved.paragraphs ?? []).join("\n\n"));
-      setLetterClosing(saved.closing ?? "Sincerely,");
-      setLetterSignature(saved.signature ?? "PPAC Eboard");
+      const savedValues = {
+        text: (saved.paragraphs ?? []).join("\n\n"),
+        closing: saved.closing ?? "Sincerely,",
+        signature: saved.signature ?? "PPAC Eboard",
+      };
+      setLetterText(savedValues.text);
+      setLetterClosing(savedValues.closing);
+      setLetterSignature(savedValues.signature);
+      setSavedLetter(savedValues);
     } catch (err) {
       setLetterError(
         (err as Error).message || "Failed to save presidents letter",
@@ -294,6 +362,46 @@ const AdminHome: React.FC = () => {
       setLetterSaving(false);
     }
   };
+
+  const letterDirty =
+    !letterLoading &&
+    (letterText !== savedLetter.text ||
+      letterClosing !== savedLetter.closing ||
+      letterSignature !== savedLetter.signature);
+
+  const hasUnsavedChanges = useMemo(
+    () =>
+      letterDirty ||
+      testimonials.some(isTestimonialDirty) ||
+      faqItems.some(isFaqDirty),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [letterDirty, testimonials, savedTestimonials, faqItems, savedFaq],
+  );
+
+  // Warn before leaving with unsaved edits: browser reload/close...
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // ...and in-app navigation (sidebar links, back button).
+  const blocker = useBlocker(hasUnsavedChanges);
+  // Ask once per blocked navigation. Depend on the state only: the blocker
+  // object is new on every render, which would re-run this and ask twice.
+  useEffect(() => {
+    if (blocker.state !== "blocked") return;
+    if (window.confirm("You have unsaved changes on this page. Leave without saving?")) {
+      blocker.proceed?.();
+    } else {
+      blocker.reset?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blocker.state]);
 
   return (
     <div className="admin-home">
@@ -401,7 +509,17 @@ const AdminHome: React.FC = () => {
                       ? "Saving…"
                       : "Save"}
                   </button>
+                  {isTestimonialDirty(testimonial) && (
+                    <span className="admin-home__unsaved">
+                      {isDraftId(testimonial._id) ? "Not published yet" : "Unsaved changes"}
+                    </span>
+                  )}
                 </div>
+                {testimonialErrors[testimonial._id] && (
+                  <p className="admin-home__item-error" role="alert">
+                    {testimonialErrors[testimonial._id]}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -449,6 +567,7 @@ const AdminHome: React.FC = () => {
             >
               {letterSaving ? "Saving…" : "Save letter"}
             </button>
+            {letterDirty && <span className="admin-home__unsaved">Unsaved changes</span>}
           </div>
         )}
       </div>
@@ -459,7 +578,7 @@ const AdminHome: React.FC = () => {
           <button
             className="admin-home__add-btn"
             type="button"
-            onClick={() => void handleAddFaqItem()}
+            onClick={handleAddFaqItem}
           >
             + Add question
           </button>
@@ -502,16 +621,39 @@ const AdminHome: React.FC = () => {
                   <button
                     className="admin-home__delete-btn"
                     type="button"
-                    onClick={() => void handleDeleteFaqItem(faqItem._id)}
+                    onClick={() =>
+                      isDraftId(faqItem._id)
+                        ? void handleDeleteFaqItem(faqItem)
+                        : setFaqDeleteTarget(faqItem)
+                    }
                   >
-                    Delete
+                    {isDraftId(faqItem._id) ? "Discard" : "Delete"}
                   </button>
+                  {isFaqDirty(faqItem) && (
+                    <span className="admin-home__unsaved">
+                      {isDraftId(faqItem._id) ? "Not published yet" : "Unsaved changes"}
+                    </span>
+                  )}
                 </div>
+                {faqErrors[faqItem._id] && (
+                  <p className="admin-home__item-error" role="alert">
+                    {faqErrors[faqItem._id]}
+                  </p>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {faqDeleteTarget && (
+        <DeleteConfirmModal
+          heading="Delete question?"
+          body={`"${faqDeleteTarget.question}" will be removed from the public Home page. This cannot be undone.`}
+          onCancel={() => setFaqDeleteTarget(null)}
+          onConfirm={() => void handleDeleteFaqItem(faqDeleteTarget)}
+        />
+      )}
     </div>
   );
 };

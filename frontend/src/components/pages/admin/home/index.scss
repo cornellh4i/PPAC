@@ -113,8 +113,22 @@
 
   &__list-item-actions {
     display: flex;
+    align-items: center;
     gap: 10px;
     margin-top: 12px;
+  }
+
+  &__unsaved {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: #8a6d00;
+  }
+
+  &__item-error {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #b5294a;
+    margin: 8px 0 0;
   }
 
   &__field-label {
