@@ -4,7 +4,10 @@ export class Story {
   @prop({ required: true, trim: true })
   public story!: string;
 
+  // Explicit String type: `string | null` alone makes typegoose use Mixed,
+  // which silently ignores maxlength.
   @prop({
+    type: () => String,
     default: null,
     trim: true,
     maxlength: 100,
