@@ -3,6 +3,7 @@ import { auth } from "../../../../firebase/config";
 import ProviderFormModal from "./ProviderFormModal";
 import { Provider, getProviders, deleteProvider } from "./providersApi";
 import { getAvatarIcon } from "./avatarOptions";
+import { getInitials } from "../../../../utils/getInitials";
 import "./index.scss";
 
 const getToken = async (): Promise<string> => {
@@ -101,7 +102,9 @@ const AdminProviders: React.FC = () => {
                             alt={provider.name}
                           />
                         ) : (
-                          <div className="admin-providers__thumb admin-providers__thumb--empty" aria-hidden="true" />
+                          <div className="admin-providers__thumb admin-providers__thumb--empty" aria-hidden="true">
+                            {getInitials(provider.name)}
+                          </div>
                         )}
                       </td>
                       <td>{provider.name}</td>
