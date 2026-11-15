@@ -35,8 +35,12 @@ export type EventFormValues = Omit<
   "_id" | "createdAt" | "updatedAt"
 >;
 
-export const getEvents = async (): Promise<AdminEvent[]> => {
-  const response = await fetch(`${API_URL}/api/events`);
+// Admin list: includes drafts and PPAC-only events (the public GET /api/events
+// only returns published, public ones).
+export const getEvents = async (token: string): Promise<AdminEvent[]> => {
+  const response = await fetch(`${API_URL}/api/events/admin`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   const json = await response.json();
   if (!response.ok) throw new Error(json.error || "Failed to fetch events");
   return json.data ?? [];

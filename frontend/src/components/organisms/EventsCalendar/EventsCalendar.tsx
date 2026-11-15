@@ -11,6 +11,8 @@ import { EventCardEvent } from "../../molecules/EventViewCard/EventCard";
 import CalendarMonthPicker from "./CalendarMonthPicker";
 import {
   DAY_LABELS,
+  GRID_END_HOUR,
+  GRID_START_HOUR,
   GRID_TOTAL_MINUTES,
   HOUR_LABELS,
   addDays,
@@ -38,8 +40,22 @@ interface PlottedEvent {
   /** px from top of `.events-calendar__day-body` */
   top: number;
   height: number;
+  /** Start time shown for events drawn in the top strip outside grid hours. */
+  timeLabel?: string;
   isAllDay: boolean;
 }
+
+/** End of an event; defaults to 1 h after start when endTime is null (matches EventCard). */
+const getEventEnd = (event: EventCardEvent): Date => {
+  const start = new Date(event.startTime);
+  const end = event.endTime
+    ? new Date(event.endTime)
+    : new Date(start.getTime() + 60 * 60 * 1000);
+  return end > start ? end : new Date(start.getTime() + 60 * 1000);
+};
+
+const formatTime = (date: Date): string =>
+  date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }).toLowerCase();
 
 const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
   const today = useMemo(() => {
@@ -59,50 +75,62 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
   const weekDays = useMemo(() => getWeekDays(weekStart), [weekStart]);
   const referenceMonth = weekStart.getMonth();
 
-  // Events whose startTime falls in [weekStart, weekStart + 7 days).
+  // Events that overlap [weekStart, weekStart + 7 days) at any point, so
+  // multi-day events also show on the days after they start.
   const weekEvents = useMemo(() => {
     const weekEnd = addDays(weekStart, 7);
     return events.filter((event) => {
       const start = new Date(event.startTime);
-      return start >= weekStart && start < weekEnd;
+      return start < weekEnd && getEventEnd(event) > weekStart;
     });
   }, [events, weekStart]);
 
-  // Convert filtered events to absolute top/height for each day column.
+  // Convert events to absolute top/height for every day column they overlap.
   const plottedEvents = useMemo((): PlottedEvent[] => {
     const result: PlottedEvent[] = [];
+    const gridStartMin = GRID_START_HOUR * 60;
+    const gridEndMin = GRID_END_HOUR * 60;
 
     weekEvents.forEach((event) => {
       const start = new Date(event.startTime);
-      const dayIndex = weekDays.findIndex((day) => isSameDay(day, start));
-      if (dayIndex === -1) return;
+      const end = getEventEnd(event);
 
-      if (event.allDay) {
+      weekDays.forEach((day, dayIndex) => {
+        const dayStart = new Date(day);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = addDays(dayStart, 1);
+        if (!(start < dayEnd && end > dayStart)) return;
+
+        if (event.allDay) {
+          result.push({ event, dayIndex, top: 0, height: 32, isAllDay: true });
+          return;
+        }
+
+        // The part of the event that falls on this day, in minutes since midnight.
+        const segStart = start > dayStart ? start : dayStart;
+        const segStartMin = segStart.getHours() * 60 + segStart.getMinutes();
+        const segEndMin =
+          end < dayEnd ? end.getHours() * 60 + end.getMinutes() : 24 * 60;
+
+        // Entirely before 8 am or after 10 pm: show in the top strip with its
+        // time instead of pinning it to the edge of the grid.
+        if (segEndMin <= gridStartMin || segStartMin >= gridEndMin) {
+          result.push({ event, dayIndex, top: 0, height: 32, isAllDay: true, timeLabel: formatTime(segStart) });
+          return;
+        }
+
+        const top = minutesToPixels(getMinutesFromGridStart(segStart));
+        const bottom = minutesToPixels(
+          Math.max(0, Math.min(GRID_TOTAL_MINUTES, segEndMin - gridStartMin)),
+        );
         result.push({
           event,
           dayIndex,
-          top: 0,
-          height: 32,
-          isAllDay: true,
+          top,
+          height: Math.max(bottom - top, 16),
+          isAllDay: false,
         });
-        return;
-      }
-
-      const top = minutesToPixels(getMinutesFromGridStart(start));
-      // Default 1 h duration when endTime is null (matches EventCard).
-      const end = event.endTime
-        ? new Date(event.endTime)
-        : new Date(start.getTime() + 60 * 60 * 1000);
-      const durationMinutes = Math.max(
-        (end.getTime() - start.getTime()) / 60000,
-        0,
-      );
-      const height = Math.max(
-        minutesToPixels(Math.min(durationMinutes, GRID_TOTAL_MINUTES)),
-        16,
-      );
-
-      result.push({ event, dayIndex, top, height, isAllDay: false });
+      });
     });
 
     return result;
@@ -223,7 +251,7 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
                       {day.getDate()}
                     </button>
 
-                    {dayEvents.map(({ event, top, height, isAllDay }) => (
+                    {dayEvents.map(({ event, top, height, isAllDay, timeLabel }) => (
                       <button
                         key={event._id}
                         type="button"
@@ -232,9 +260,9 @@ const EventsCalendar: React.FC<EventsCalendarProps> = ({ events }) => {
                         }`}
                         style={{ top: `${top}px`, height: `${height}px` }}
                         onClick={() => setSelectedDate(day)}
-                        title={event.title}
+                        title={timeLabel ? `${timeLabel} · ${event.title}` : event.title}
                       >
-                        {event.title}
+                        {timeLabel ? `${timeLabel} · ${event.title}` : event.title}
                       </button>
                     ))}
                   </div>

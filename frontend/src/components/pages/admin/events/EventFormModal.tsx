@@ -87,6 +87,10 @@ const EventFormModal: React.FC<Props> = ({ event, onClose, onSave }) => {
       setError("Start and end time are required.");
       return;
     }
+    if (new Date(fromDatetimeLocal(endTime)) < new Date(fromDatetimeLocal(startTime))) {
+      setError("End time must be after the start time.");
+      return;
+    }
     if (!venue.trim()) {
       setError("Venue is required.");
       return;

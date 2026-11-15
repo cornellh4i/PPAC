@@ -7,6 +7,15 @@ import { successJson, errorJson } from "../utils/jsonResponses";
 
 const eventRouter = Router();
 
+// Returns an error message if the time range is invalid, otherwise null.
+const checkTimeRange = (start: unknown, end: unknown): string | null => {
+  const startDate = new Date(start as string);
+  const endDate = new Date(end as string);
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return "Invalid start or end time";
+  if (endDate < startDate) return "End time must be after the start time";
+  return null;
+};
+
 const requireAdmin = async (
   req: Request,
   res: Response,
@@ -28,6 +37,8 @@ eventRouter.post("/", verifyToken, requireAdmin, async (req, res) => {
   if (!title || !eventType || !startTime || !endTime || !location || !organizer) {
     return res.status(400).send(errorJson("Missing required fields"));
   }
+  const rangeError = checkTimeRange(startTime, endTime);
+  if (rangeError) return res.status(400).send(errorJson(rangeError));
   try {
     const event = await eventControllers.insertEvent(req.body);
     res.status(201).send(successJson(event));
@@ -36,13 +47,31 @@ eventRouter.post("/", verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
-eventRouter.get("/", async (req, res) => {
+const buildEventFilter = (query: Request["query"]): Record<string, unknown> => {
   const filter: Record<string, unknown> = {};
-  if (req.query.eventType) filter.eventType = req.query.eventType;
+  if (query.eventType) filter.eventType = query.eventType;
+  if (query.startDate) filter.startTime = { $gte: new Date(query.startDate as string) };
+  if (query.endDate) filter.endTime = { $lte: new Date(query.endDate as string) };
+  return filter;
+};
+
+// Public list: only published events visible to the public. Drafts and
+// PPAC-only events are never returned here, whatever the query string says.
+eventRouter.get("/", async (req, res) => {
+  const filter = { ...buildEventFilter(req.query), isPublished: true, visibility: "public" };
+  try {
+    const events = await eventControllers.getEvents(filter);
+    res.status(200).send(successJson(events));
+  } catch (error) {
+    res.status(400).send(errorJson((error as Error).message));
+  }
+});
+
+// Admin list: every event, with optional visibility/isPublished filters.
+eventRouter.get("/admin", verifyToken, requireAdmin, async (req, res) => {
+  const filter = buildEventFilter(req.query);
   if (req.query.visibility) filter.visibility = req.query.visibility;
   if (req.query.isPublished !== undefined) filter.isPublished = req.query.isPublished === "true";
-  if (req.query.startDate) filter.startTime = { $gte: new Date(req.query.startDate as string) };
-  if (req.query.endDate) filter.endTime = { $lte: new Date(req.query.endDate as string) };
   try {
     const events = await eventControllers.getEvents(filter);
     res.status(200).send(successJson(events));
@@ -55,7 +84,7 @@ eventRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const event = await eventControllers.getEventById(id);
-    if (event) {
+    if (event && event.isPublished && event.visibility === "public") {
       res.status(200).send(successJson(event));
     } else {
       res.status(404).send(errorJson("Event not found"));
@@ -72,6 +101,21 @@ eventRouter.put(
   async (req: Request<{ id: string }>, res) => {
     try {
       const id = new mongoose.Types.ObjectId(req.params.id);
+      if (req.body.startTime !== undefined || req.body.endTime !== undefined) {
+        const existing = await eventControllers.getEventById(id);
+        if (!existing) {
+          res.status(404).send(errorJson("Event not found"));
+          return;
+        }
+        const rangeError = checkTimeRange(
+          req.body.startTime ?? existing.startTime,
+          req.body.endTime ?? existing.endTime,
+        );
+        if (rangeError) {
+          res.status(400).send(errorJson(rangeError));
+          return;
+        }
+      }
       const updated = await eventControllers.updateEvent(id, req.body);
       if (!updated) {
         res.status(404).send(errorJson("Event not found"));

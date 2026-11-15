@@ -47,7 +47,7 @@ const AdminEvents: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const list = await getEvents();
+      const list = await getEvents(await getToken());
       const sorted = [...list].sort(
         (a, b) =>
           new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
