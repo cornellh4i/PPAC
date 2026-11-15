@@ -14,6 +14,7 @@ import envelope4 from "../../../assets/home/envelope-4.png";
 import envelope5 from "../../../assets/home/envelope-5.png";
 
 import "./index.scss";
+import { cloudinaryResize } from "../../../utils/cloudinary";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -124,7 +125,7 @@ const Home: React.FC = () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         const raw: any[] = json.data ?? json;
-        if (raw.length > 0) setHeroPhotoUrl(raw[0].imageUrl);
+        if (raw.length > 0) setHeroPhotoUrl(cloudinaryResize(raw[0].imageUrl, 1400));
       } catch (err) {
         console.error("Failed to fetch hero photo:", err);
       }
@@ -227,6 +228,10 @@ const Home: React.FC = () => {
         }),
       });
 
+      if (response.status === 429) {
+        setFormError("You've sent several messages recently. Please try again in a few minutes.");
+        return;
+      }
       if (!response.ok) {
         throw new Error("Submission failed");
       }
