@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -13,7 +13,16 @@ import './index.scss';
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const location = useLocation();
+  // Set by AdminLayout when a signed-in account lost (or never had) access.
+  const accessDenied = Boolean(
+    (location.state as { accessDenied?: boolean } | null)?.accessDenied,
+  );
+  const [error, setError] = useState(
+    accessDenied
+      ? 'Your account no longer has access to the admin dashboard. Ask an existing admin to add you.'
+      : '',
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

@@ -174,7 +174,12 @@ router.post("/admin-emails", verifyToken, async (req: Request, res: Response): P
 router.delete("/admin-emails/:email", verifyToken, async (req: Request, res: Response): Promise<void> => {
     try {
         if (!(await requireAdmin(req, res))) return;
-        const emails = await removeAllowedAdminEmail(decodeURIComponent(req.params.email));
+        const target = decodeURIComponent(req.params.email).trim().toLowerCase();
+        if (target === req.user?.email?.trim().toLowerCase()) {
+            res.status(400).json({ message: "You can't remove your own admin access" });
+            return;
+        }
+        const emails = await removeAllowedAdminEmail(target);
         res.status(200).json({ emails });
     } catch (error) {
         console.error("Delete admin email error:", error);

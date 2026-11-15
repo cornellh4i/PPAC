@@ -2,12 +2,13 @@ import { Router, Request } from "express";
 import userControllers from "./controllers";
 import mongoose from "mongoose";
 import { successJson, errorJson } from "../utils/jsonResponses";
+import { verifyToken, requireAdmin } from "../middleware/authMiddleware";
 
 
 
 const userRouter = Router();
 
-userRouter.get("/", async (req, res) => {
+userRouter.get("/", verifyToken, requireAdmin, async (req, res) => {
   try {
     res.status(200).send(await userControllers.getUsers());
   } catch (error) {
@@ -15,7 +16,7 @@ userRouter.get("/", async (req, res) => {
   }
 });
 
-userRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
+userRouter.get("/:id", verifyToken, requireAdmin, async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const user = await userControllers.getUserById(id);
@@ -29,7 +30,7 @@ userRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-userRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
+userRouter.put("/:id", verifyToken, requireAdmin, async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const user = await userControllers.getUserById(id);
@@ -44,7 +45,7 @@ userRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-userRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
+userRouter.delete("/:id", verifyToken, requireAdmin, async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const user = await userControllers.getUserById(id);
