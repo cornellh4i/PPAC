@@ -7,6 +7,7 @@ import "./community.scss";
 const Team: React.FC = () => {
   const [officers, setOfficers] = useState<TeamMember[]>([]);
   const [speakers, setSpeakers] = useState<TeamMember[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -16,6 +17,8 @@ const Team: React.FC = () => {
         setSpeakers(members.filter((m) => m.category === "speaker"));
       } catch (error) {
         console.error("Failed to load team members:", error);
+      } finally {
+        setLoaded(true);
       }
     })();
   }, []);
@@ -28,6 +31,9 @@ const Team: React.FC = () => {
 
       <section className="community__section">
         <h2 className="community__heading">Our Officers</h2>
+        {loaded && officers.length === 0 && (
+          <p className="community__empty">Officer profiles are coming soon.</p>
+        )}
         <div className="community__grid">
           {officers.map((officer) => (
             <ProfileCard
@@ -43,6 +49,9 @@ const Team: React.FC = () => {
 
       <section className="community__section">
         <h2 className="community__heading">Our Speakers</h2>
+        {loaded && speakers.length === 0 && (
+          <p className="community__empty">Speakers will be announced soon. Stay tuned!</p>
+        )}
         <div className="community__grid">
           {speakers.map((speaker) => (
             <ProfileCard

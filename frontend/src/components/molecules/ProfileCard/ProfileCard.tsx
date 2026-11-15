@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import "./ProfileCard.scss";
+import { cloudinaryResize } from "../../../utils/cloudinary";
 
 type ProfileCardProps = {
   name: string;
@@ -12,7 +13,7 @@ const ProfileCard = ({ name, role, imageUrl, linkedinUrl }: ProfileCardProps) =>
   return (
     <article className="profileCard">
       {imageUrl ? (
-        <img className="profileCard__image" src={imageUrl} alt={`${name} profile`} />
+        <img className="profileCard__image" src={cloudinaryResize(imageUrl, 600)} alt={`${name} profile`} />
       ) : (
         <div className="profileCard__imageFallback" aria-hidden="true" />
       )}

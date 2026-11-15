@@ -1,5 +1,7 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import bodyParser from "body-parser";
+import multer from "multer";
+import { errorJson } from "./utils/jsonResponses";
 import userRouter from "./users/views";
 import authRouter from "./auth/views"
 import resourceRouter from "./resources/views";
@@ -60,6 +62,30 @@ app.get("/", function (req, res) {
 
 app.post("/", (req, res) => {
   res.send(req.body);
+});
+
+// Last-resort error handler: always answer with JSON and never leak stack
+// traces. Upload problems (wrong file type, file too large) become 400s.
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
+  if (err instanceof multer.MulterError) {
+    const message =
+      err.code === "LIMIT_FILE_SIZE"
+        ? "Image must be 5 MB or smaller"
+        : err.message;
+    res.status(400).send(errorJson(message));
+    return;
+  }
+  const status = Number(err?.status ?? err?.statusCode);
+  if (status >= 400 && status < 500) {
+    res.status(status).send(errorJson(err.expose === false ? "Bad request" : err.message));
+    return;
+  }
+  console.error("Unhandled error:", err);
+  res.status(500).send(errorJson("Server error"));
 });
 
 app.listen(process.env.PORT || 8000, async () => {
