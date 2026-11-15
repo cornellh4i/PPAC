@@ -38,7 +38,8 @@
     "ingest": "ts-node src/scripts/ingestResources.ts",
     "embed": "ts-node src/scripts/generateEmbeddings.ts",
     "rebuild-embeddings": "yarn ingest && yarn embed",
-    "clear-embeddings": "ts-node src/scripts/clearEmbeddings.ts"
+    "clear-embeddings": "ts-node src/scripts/clearEmbeddings.ts",
+    "backfill-created-at": "ts-node src/scripts/backfillResourceCreatedAt.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

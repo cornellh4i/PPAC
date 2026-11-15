@@ -2,6 +2,24 @@ import { Router, Request } from "express";
 import resourceControllers from "./controllers";
 import mongoose from "mongoose";
 import { successJson, errorJson } from "../utils/jsonResponses";
+import { verifyToken, requireAdmin } from "../middleware/authMiddleware";
+import { isHttpUrl } from "../utils/validation";
+
+// Returns an error message if any provided link is not a full http(s) URL.
+const checkResourceLinks = (body: any): string | null => {
+  if (body.link !== undefined && !isHttpUrl(body.link)) {
+    return "Link must be a full URL starting with http:// or https://";
+  }
+  for (const field of ["readAt", "borrowAt"]) {
+    const links = body[field];
+    if (links === undefined) continue;
+    if (!Array.isArray(links)) return `${field} must be an array`;
+    for (const item of links) {
+      if (!isHttpUrl(item?.url)) return `Every "${field}" link must be a full URL starting with http:// or https://`;
+    }
+  }
+  return null;
+};
 
 const resourceRouter = Router();
 
@@ -33,12 +51,17 @@ resourceRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-resourceRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
+resourceRouter.put("/:id", verifyToken, requireAdmin, async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const resource = await resourceControllers.getResourceById(id);
     if (!resource) {
       res.status(404).send(errorJson("Resource not found"));
+      return;
+    }
+    const linkError = checkResourceLinks(req.body);
+    if (linkError) {
+      res.status(400).send(errorJson(linkError));
       return;
     }
     const updatedResource = await resourceControllers.updateResource(id, req.body);
@@ -48,7 +71,7 @@ resourceRouter.put("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
+resourceRouter.delete("/:id", verifyToken, requireAdmin, async (req: Request<{ id: string }>, res) => {
   try {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const resource = await resourceControllers.getResourceById(id);
@@ -67,10 +90,15 @@ resourceRouter.delete("/:id", async (req: Request<{ id: string }>, res) => {
   }
 });
 
-resourceRouter.post("/", async (req, res) => {
+resourceRouter.post("/", verifyToken, requireAdmin, async (req, res) => {
   const { title, type, description, link, file, createdBy, tags, readAt, borrowAt, status } = req.body;
   if (!title || !type || !description || !link || !createdBy) {
     res.status(400).send(errorJson("Missing a required field"));
+    return;
+  }
+  const linkError = checkResourceLinks(req.body);
+  if (linkError) {
+    res.status(400).send(errorJson(linkError));
     return;
   }
   try {

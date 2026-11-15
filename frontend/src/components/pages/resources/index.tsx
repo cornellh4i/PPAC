@@ -35,6 +35,11 @@ const CATEGORY_PILLS = [
 
 const API_BASE = process.env.REACT_APP_API_URL ?? "http://localhost:8000";
 
+// Topics used by the filter sidebar. Untagged resources fall under "Resource"
+// so they can still be found by topic.
+const topicsOf = (resource: Resource): string[] =>
+  resource.tags?.length ? resource.tags : ["Resource"];
+
 const Resources: React.FC = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,8 +86,11 @@ const Resources: React.FC = () => {
 
   const filterResources = useMemo(() => {
     return resources.flatMap((resource) => {
-      const tags = resource.tags?.length ? resource.tags : ["Resource"];
-      return tags.map((tag) => ({ mediaType: resource.type, topic: tag }));
+      return topicsOf(resource).map((tag) => ({
+        id: resource._id,
+        mediaType: resource.type,
+        topic: tag,
+      }));
     });
   }, [resources]);
 
@@ -102,6 +110,7 @@ const Resources: React.FC = () => {
       })
       .filter((resource) => {
         const resourceTags = resource.tags || [];
+        const resourceTopics = topicsOf(resource);
         const matchesSearch =
           !normalizedSearch ||
           resource.title.toLowerCase().includes(normalizedSearch) ||
@@ -114,7 +123,7 @@ const Resources: React.FC = () => {
           selectedMediaTypes.includes(resource.type);
         const matchesTag =
           selectedTags.length === 0 ||
-          resourceTags.some((tag) => selectedTags.includes(tag));
+          resourceTopics.some((tag) => selectedTags.includes(tag));
         const matchesPill =
           !pillTypes || pillTypes.has(resource.type.toLowerCase());
         return matchesSearch && matchesType && matchesTag && matchesPill;

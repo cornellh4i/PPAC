@@ -100,8 +100,11 @@ const AdminResources: React.FC = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) throw new Error('Not signed in');
       const res = await fetch(`${API_BASE}/api/resources/${deleteTarget._id}`, {
         method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       setResources((prev) => prev.filter((r) => r._id !== deleteTarget._id));

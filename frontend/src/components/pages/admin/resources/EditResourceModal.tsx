@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
+import { auth } from '../../../../firebase/config';
 import './EditResourceModal.scss';
+
+const isHttpUrl = (value: string): boolean => {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
 
 export interface ResourceFull {
   _id: string;
@@ -85,15 +95,27 @@ const EditResourceModal: React.FC<Props> = ({ resource, createdById, onClose, on
     if (!form.title.trim()) { setError('Title is required.'); return; }
     if (!form.description.trim()) { setError('Description is required.'); return; }
     if (!form.link.trim()) { setError('Link is required.'); return; }
+    if (!isHttpUrl(form.link)) { setError('Link must be a full URL starting with http:// or https://'); return; }
+    const bookLinks = [...form.readAt, ...form.borrowAt];
+    if (bookLinks.some((l) => !isHttpUrl(l.url))) {
+      setError('Every "Read online" / "Borrow" link needs a full URL starting with http:// or https:// (remove empty rows).');
+      return;
+    }
 
     setSaving(true);
     setError(null);
 
     try {
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) throw new Error('Not signed in');
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
       if (isCreate) {
         const res = await fetch(`${API_BASE}/api/resources`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ ...form, createdBy: createdById }),
         });
         if (!res.ok) throw new Error(`Server error ${res.status}`);
@@ -107,7 +129,7 @@ const EditResourceModal: React.FC<Props> = ({ resource, createdById, onClose, on
       } else {
         const res = await fetch(`${API_BASE}/api/resources/${resource!._id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(form),
         });
         if (!res.ok) throw new Error(`Server error ${res.status}`);
