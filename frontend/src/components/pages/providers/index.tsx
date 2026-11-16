@@ -1,6 +1,7 @@
 import ProviderCard from "../../molecules/ProviderCard/ProviderCard";
 import { Search, Funnel } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Provider, getProviders } from "../admin/providers/providersApi";
 import { getAvatarIcon } from "../admin/providers/avatarOptions";
 import "./Providers.scss";
@@ -14,8 +15,28 @@ const PROVIDER_FILTERS = [
 
 const Providers: React.FC = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [loaded, setLoaded] = useState(false);
+  // Search text and chip live in the URL (?q=…&field=…) so they survive
+  // navigating away and back, and can be shared as a link.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") ?? "";
+  const fieldParam = searchParams.get("field");
+  const selectedFilter =
+    fieldParam && PROVIDER_FILTERS.includes(fieldParam) ? fieldParam : "All";
+
+  const updateParam = (key: string, value: string, defaultValue: string) => {
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current);
+        if (value === defaultValue) next.delete(key);
+        else next.set(key, value);
+        return next;
+      },
+      { replace: true },
+    );
+  };
+  const setSearchQuery = (value: string) => updateParam("q", value, "");
+  const setSelectedFilter = (value: string) => updateParam("field", value, "All");
 
   useEffect(() => {
     void (async () => {
@@ -24,6 +45,8 @@ const Providers: React.FC = () => {
         setProviders(list);
       } catch (error) {
         console.error("Failed to load providers:", error);
+      } finally {
+        setLoaded(true);
       }
     })();
   }, []);
@@ -85,8 +108,24 @@ const Providers: React.FC = () => {
       </div>
 
       <p className="providers__count">
-        Showing <strong>{filteredProviders.length}</strong> verified providers
+        Showing <strong>{filteredProviders.length}</strong> verified{" "}
+        {filteredProviders.length === 1 ? "provider" : "providers"}
       </p>
+
+      {loaded && filteredProviders.length === 0 && (
+        <div className="providers__empty" role="status">
+          <p>No providers match your search.</p>
+          {(searchQuery || selectedFilter !== "All") && (
+            <button
+              type="button"
+              className="providers__chip"
+              onClick={() => setSearchParams({}, { replace: true })}
+            >
+              Clear search and filters
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="providers__grid">
         {filteredProviders.map((provider) => (

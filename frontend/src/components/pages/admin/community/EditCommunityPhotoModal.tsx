@@ -35,7 +35,20 @@ const EditCommunityPhotoModal: React.FC<Props> = ({ photo, onClose, onSave }) =>
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) setFile(selected);
+    if (!selected) return;
+    // Catch obvious problems before uploading (the server checks again).
+    if (!selected.type.startsWith('image/')) {
+      setError('Please choose an image file (JPG, PNG, etc.).');
+      e.target.value = '';
+      return;
+    }
+    if (selected.size > 5 * 1024 * 1024) {
+      setError('Image must be 5 MB or smaller.');
+      e.target.value = '';
+      return;
+    }
+    setError(null);
+    setFile(selected);
   };
 
   const handleSave = async () => {
@@ -122,11 +135,15 @@ const EditCommunityPhotoModal: React.FC<Props> = ({ photo, onClose, onSave }) =>
               />
             </div>
           </div>
-
-          {error && <p className="ecm__error">{error}</p>}
         </div>
 
         <div className="ecm__footer">
+          {/* In the footer so it is always visible, even when the body scrolls. */}
+          {error && (
+            <p className="ecm__error ecm__error--footer" role="alert">
+              {error}
+            </p>
+          )}
           <button className="ecm__btn ecm__btn--cancel" type="button" onClick={onClose}>
             Cancel
           </button>

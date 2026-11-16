@@ -57,6 +57,12 @@
   gap: 16px;
 }
 
+.community__empty {
+  margin: 8px 0 0;
+  color: #6f6f6f;
+  font-size: 15px;
+}
+
 @media (max-width: 768px) {
   .community {
     padding: 20px 16px 28px;

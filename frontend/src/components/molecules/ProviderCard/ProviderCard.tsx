@@ -2,6 +2,7 @@ import "./ProviderCard.scss";
 import { MapPin, Phone, Calendar, Shield, User, CalendarCheck } from "lucide-react";
 import { useState } from "react";
 import ProviderModal from "../../organisms/ProviderModal/ProviderModal";
+import { getInitials } from "../../../utils/getInitials";
 
 export type Availability = {
   day: string;
@@ -37,7 +38,11 @@ const ProviderCard = ({
 }: ProviderCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Some older providers have no booking link; hide "Book" for them instead
+  // of opening a blank tab.
+  const hasBookingLink = Boolean(bookingLink?.trim());
   const handleBook = () => {
+    if (!hasBookingLink) return;
     window.open(bookingLink, "_blank", "noopener,noreferrer");
   };
 
@@ -49,7 +54,9 @@ const ProviderCard = ({
             {imageUrl ? (
               <img className="providerCard__avatarImage" src={imageUrl} alt={`${name} profile`} />
             ) : (
-              <div className="providerCard__avatarFallback" />
+              <div className="providerCard__avatarFallback" aria-hidden="true">
+                {getInitials(name)}
+              </div>
             )}
           </div>
 
@@ -104,10 +111,12 @@ const ProviderCard = ({
             <User size={16} aria-hidden="true" />
             View Profile
           </button>
-          <button type="button" className="providerCard__footerLink" onClick={handleBook}>
-            <CalendarCheck size={16} aria-hidden="true" />
-            Book
-          </button>
+          {hasBookingLink && (
+            <button type="button" className="providerCard__footerLink" onClick={handleBook}>
+              <CalendarCheck size={16} aria-hidden="true" />
+              Book
+            </button>
+          )}
         </div>
 
       </article>
@@ -126,7 +135,7 @@ const ProviderCard = ({
         about={about}
         experience={experience}
         imageUrl={imageUrl}
-        onBook={handleBook}
+        onBook={hasBookingLink ? handleBook : undefined}
       />
     </>
   );

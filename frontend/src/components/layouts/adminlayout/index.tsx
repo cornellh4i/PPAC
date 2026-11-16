@@ -21,6 +21,9 @@ const adminPageLabels: Record<string, string> = {
 const AdminLayout: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  // Set when a signed-in account turns out not to be an admin, so the login
+  // page can explain why they were sent back.
+  const [accessDenied, setAccessDenied] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -36,6 +39,7 @@ const AdminLayout: React.FC = () => {
           const token = await currentUser.getIdToken();
           if (!(await isAllowedAdminEmail(token))) {
             await signOut(firebaseAuth);
+            setAccessDenied(true);
             setUser(null);
             setLoading(false);
             return;
@@ -61,7 +65,15 @@ const AdminLayout: React.FC = () => {
   }, []);
 
   if (loading) return <div className="admin-layout__loading">Loading...</div>;
-  if (!user) return <Navigate to="/admin/login" replace />;
+  if (!user) {
+    return (
+      <Navigate
+        to="/admin/login"
+        replace
+        state={accessDenied ? { accessDenied: true } : undefined}
+      />
+    );
+  }
   const pageName = adminPageLabels[location.pathname] || 'Admin';
   const adminName = user.displayName?.trim() || user.email || 'Admin';
 

@@ -81,12 +81,30 @@ const buildCalendarUrl = (event: EventCardEvent): string => {
   const toGoogleDate = (date: Date) =>
     date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 
+  // All-day events use local calendar dates (YYYYMMDD); Google treats the end
+  // date as exclusive, so it is the day after the last day of the event.
+  const toGoogleDay = (date: Date) =>
+    `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(
+      date.getDate(),
+    ).padStart(2, "0")}`;
+  const dayAfter = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
+  const dates = event.allDay
+    ? `${toGoogleDay(start)}/${toGoogleDay(dayAfter(end < start ? start : end))}`
+    : `${toGoogleDate(start)}/${toGoogleDate(end)}`;
+
+  const { venue, address, link } = event.location;
+  const details = [event.description, link ? `Join: ${link}` : ""]
+    .filter(Boolean)
+    .join("\n\n");
+
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: event.title,
-    dates: `${toGoogleDate(start)}/${toGoogleDate(end)}`,
-    details: event.description,
-    location: event.location.venue || event.location.address || "",
+    dates,
+    details,
+    location: [venue, address].filter(Boolean).join(", "),
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;

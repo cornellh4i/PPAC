@@ -5,6 +5,7 @@ import {
   getAllowedAdminEmails,
   removeAllowedAdminEmail,
 } from '../adminAccess';
+import DeleteConfirmModal from '../events/DeleteConfirmModal';
 import './index.scss';
 
 const AdminSettings: React.FC = () => {
@@ -13,6 +14,8 @@ const AdminSettings: React.FC = () => {
   const [newEmail, setNewEmail] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const currentEmail = auth?.currentUser?.email?.trim().toLowerCase() ?? '';
 
   const getToken = async (): Promise<string | null> => {
     const currentUser = auth?.currentUser;
@@ -60,6 +63,7 @@ const AdminSettings: React.FC = () => {
   };
 
   const handleDelete = async (email: string) => {
+    setRemoveTarget(null);
     setError('');
     try {
       const token = await getToken();
@@ -102,14 +106,23 @@ const AdminSettings: React.FC = () => {
           {!loading &&
             emails.map((email) => (
               <li key={email} className="admin-settings__row">
-                <span className="admin-settings__email">{email}</span>
+                <span className="admin-settings__email">
+                  {email}
+                  {email === currentEmail && <span className="admin-settings__you"> (you)</span>}
+                </span>
                 <button
                   className="admin-settings__action-btn"
                   type="button"
                   aria-label={`Remove ${email}`}
-                  onClick={() => handleDelete(email)}
-                  disabled={emails.length <= 1}
-                  title={emails.length <= 1 ? 'At least one admin email is required' : undefined}
+                  onClick={() => setRemoveTarget(email)}
+                  disabled={emails.length <= 1 || email === currentEmail}
+                  title={
+                    email === currentEmail
+                      ? "You can't remove your own admin access"
+                      : emails.length <= 1
+                        ? 'At least one admin email is required'
+                        : undefined
+                  }
                 >
                   <TrashIcon />
                 </button>
@@ -117,6 +130,16 @@ const AdminSettings: React.FC = () => {
             ))}
         </ul>
       </div>
+
+      {removeTarget && (
+        <DeleteConfirmModal
+          heading="Remove admin?"
+          confirmLabel="Remove"
+          body={`${removeTarget} will immediately lose access to the admin dashboard.`}
+          onCancel={() => setRemoveTarget(null)}
+          onConfirm={() => void handleDelete(removeTarget)}
+        />
+      )}
     </div>
   );
 };

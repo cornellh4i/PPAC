@@ -4,6 +4,7 @@ import providerControllers from "./controllers";
 import { verifyToken } from "../middleware/authMiddleware";
 import { isAllowedAdminEmail } from "../auth/adminAllowlist";
 import { successJson, errorJson } from "../utils/jsonResponses";
+import { isHttpUrl, PROVIDER_FIELDS } from "../utils/validation";
 
 const providerRouter = Router();
 
@@ -35,6 +36,20 @@ providerRouter.get("/", async (_req, res) => {
   }
 });
 
+providerRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
+  try {
+    const id = new mongoose.Types.ObjectId(req.params.id);
+    const provider = await providerControllers.getProviderById(id);
+    if (!provider) {
+      res.status(404).send(errorJson("Provider not found"));
+      return;
+    }
+    res.status(200).send(successJson(provider));
+  } catch (error) {
+    res.status(400).send(errorJson("Invalid provider ID"));
+  }
+});
+
 providerRouter.post("/", verifyToken, requireAdmin, async (req: Request, res) => {
   const { name, field, location, number, about, experience, rating, avatar, bookingLink, order } = req.body;
   const availability = req.body.availability ?? [];
@@ -46,6 +61,10 @@ providerRouter.post("/", verifyToken, requireAdmin, async (req: Request, res) =>
   }
   if (!field || typeof field !== "string" || !field.trim()) {
     res.status(400).send(errorJson("Field is required"));
+    return;
+  }
+  if (!PROVIDER_FIELDS.includes(field.trim())) {
+    res.status(400).send(errorJson(`Field must be one of: ${PROVIDER_FIELDS.join(", ")}`));
     return;
   }
   if (!location || typeof location !== "string" || !location.trim()) {
@@ -66,6 +85,10 @@ providerRouter.post("/", verifyToken, requireAdmin, async (req: Request, res) =>
   }
   if (!bookingLink || typeof bookingLink !== "string" || !bookingLink.trim()) {
     res.status(400).send(errorJson("Booking link is required"));
+    return;
+  }
+  if (!isHttpUrl(bookingLink)) {
+    res.status(400).send(errorJson("Booking link must be a full URL starting with http:// or https://"));
     return;
   }
   if (avatar !== undefined && avatar !== "female" && avatar !== "male") {
@@ -130,11 +153,15 @@ providerRouter.put("/:id", verifyToken, requireAdmin, async (req: Request<{ id: 
       res.status(400).send(errorJson("avatar must be 'female' or 'male'"));
       return;
     }
+    if (bookingLink !== undefined && !isHttpUrl(bookingLink)) {
+      res.status(400).send(errorJson("Booking link must be a full URL starting with http:// or https://"));
+      return;
+    }
     if (
-      bookingLink !== undefined &&
-      (typeof bookingLink !== "string" || !bookingLink.trim())
+      field !== undefined &&
+      (typeof field !== "string" || !PROVIDER_FIELDS.includes(field.trim()))
     ) {
-      res.status(400).send(errorJson("Booking link must be a non-empty string"));
+      res.status(400).send(errorJson(`Field must be one of: ${PROVIDER_FIELDS.join(", ")}`));
       return;
     }
     if (availability !== undefined && !isValidAvailability(availability)) {

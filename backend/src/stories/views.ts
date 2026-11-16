@@ -8,6 +8,8 @@ import { errorJson, successJson } from "../utils/jsonResponses";
 
 const storyRouter = Router();
 
+const MAX_NAME_LENGTH = 100;
+
 const requireAdmin = async (
   req: Request,
   res: Response,
@@ -39,6 +41,11 @@ storyRouter.post("/", async (req, res) => {
 
   if (!isAnonymous && (!name || typeof name !== "string" || !name.trim())) {
     res.status(400).send(errorJson("Name is required unless the story is anonymous"));
+    return;
+  }
+
+  if (!isAnonymous && name.trim().length > MAX_NAME_LENGTH) {
+    res.status(400).send(errorJson(`Name must be ${MAX_NAME_LENGTH} characters or fewer`));
     return;
   }
 
@@ -88,6 +95,11 @@ storyRouter.post("/admin", verifyToken, requireAdmin, async (req, res) => {
     return;
   }
 
+  if (!anonymous && name.trim().length > MAX_NAME_LENGTH) {
+    res.status(400).send(errorJson(`Name must be ${MAX_NAME_LENGTH} characters or fewer`));
+    return;
+  }
+
   if (status !== undefined && status !== "pending" && status !== "published") {
     res.status(400).send(errorJson("status must be 'pending' or 'published'"));
     return;
@@ -111,7 +123,9 @@ storyRouter.get("/:id", async (req: Request<{ id: string }>, res) => {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const story = await storyControllers.getStoryById(id);
 
-    if (!story) {
+    // Unpublished stories are only visible to admins via /admin, so treat
+    // them as not found here rather than revealing they exist.
+    if (!story || story.status !== "published") {
       res.status(404).send(errorJson("Story not found"));
       return;
     }
@@ -145,6 +159,11 @@ storyRouter.put(
       (typeof name !== "string" || !name.trim())
     ) {
       res.status(400).send(errorJson("Name must be a non-empty string"));
+      return;
+    }
+
+    if (typeof name === "string" && name.trim().length > MAX_NAME_LENGTH) {
+      res.status(400).send(errorJson(`Name must be ${MAX_NAME_LENGTH} characters or fewer`));
       return;
     }
 

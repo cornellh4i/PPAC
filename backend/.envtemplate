@@ -7,6 +7,13 @@ MG_API_KEY = "[private API key]"
 MG_SANDBOX_DOMAIN = "[e.g. sandboxxxxx.mailgun.org]"
 MG_BASE_URL = "[optional: https://api.mailgun.net or https://api.eu.mailgun.net]"
 MG_SENDING_KEY = "[optional: only if you use this instead of MG_API_KEY]"
+# Dev only: send contact form emails here instead of the PPAC inbox.
+# Leave unset in production.
+# CONTACT_TO_EMAIL =
+
+# Number of proxies in front of the server (default 1). Use 0 if none, so the
+# contact form rate limit sees each visitor's real IP.
+# TRUST_PROXY = 1
 
 # Cloudinary (community page image uploads)
 CLOUDINARY_URL = "[cloudinary://<api_key>:<api_secret>@<cloud_name>]"

@@ -215,10 +215,16 @@
     font-size: 13px;
     color: #b5294a;
     margin: 0;
+
+    &--footer {
+      margin-right: auto;
+      align-self: center;
+    }
   }
 
   &__btn {
     border: none;
+    white-space: nowrap;
     border-radius: 8px;
     padding: 9px 20px;
     font-family: var(--font-body);

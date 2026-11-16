@@ -36,22 +36,25 @@ const Events: React.FC = () => {
     fetchEvents();
   }, []);
 
-  // Split by start of today (local midnight). Past list is newest-first.
+  // An event is past once it has ended; ongoing events stay under Upcoming.
+  // Events with no end time are treated as ending at the end of their start
+  // day. Past list is newest-first.
   const { upcomingEvents, pastEvents } = useMemo(() => {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const endOf = (e: EventCardEvent): Date => {
+      if (e.endTime) return new Date(e.endTime);
+      const end = new Date(e.startTime);
+      end.setHours(23, 59, 59, 999);
+      return end;
+    };
 
     const sorted = [...events].sort(
       (a, b) =>
         new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
     );
 
-    const upcoming = sorted.filter(
-      (e) => new Date(e.startTime) >= startOfToday,
-    );
-    const past = sorted
-      .filter((e) => new Date(e.startTime) < startOfToday)
-      .reverse();
+    const upcoming = sorted.filter((e) => endOf(e) >= now);
+    const past = sorted.filter((e) => endOf(e) < now).reverse();
 
     return { upcomingEvents: upcoming, pastEvents: past };
   }, [events]);

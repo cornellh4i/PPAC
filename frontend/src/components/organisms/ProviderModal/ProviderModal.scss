@@ -63,7 +63,13 @@
 }
 
 .providerModal__avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #d4d4d8;
+  color: #4a4a4a;
+  font-size: 26px;
+  font-weight: 600;
 }
 
 .providerModal__nameBlock {

@@ -65,6 +65,13 @@ const ProviderFormModal: React.FC<Props> = ({ provider, onClose, onSave }) => {
       setError('Name, field, location, phone, about, experience, and booking link are required.');
       return;
     }
+    try {
+      const url = new URL(bookingLink.trim());
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error();
+    } catch {
+      setError('Booking link must be a full URL starting with http:// or https://');
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -256,10 +263,15 @@ const ProviderFormModal: React.FC<Props> = ({ provider, onClose, onSave }) => {
             />
           </div>
 
-          {error && <p className="pfm__error">{error}</p>}
         </div>
 
         <div className="pfm__footer">
+          {/* In the footer so it is always visible, even when the body scrolls. */}
+          {error && (
+            <p className="pfm__error pfm__error--footer" role="alert">
+              {error}
+            </p>
+          )}
           <button className="pfm__btn pfm__btn--cancel" type="button" onClick={onClose}>
             Cancel
           </button>

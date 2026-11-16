@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import "./ProviderModal.scss";
+import { getInitials } from "../../../utils/getInitials";
 import { MapPin, Phone, Calendar, Shield, Award, X } from "lucide-react";
 
 export type Availability = {
@@ -36,6 +38,16 @@ const ProviderModal = ({
   imageUrl,
   onBook,
 }: ProviderModalProps) => {
+  // Close on Escape while open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -55,7 +67,9 @@ const ProviderModal = ({
           {imageUrl ? (
             <img src={imageUrl} alt={name} className="providerModal__avatar" />
           ) : (
-            <div className="providerModal__avatarFallback" />
+            <div className="providerModal__avatarFallback" aria-hidden="true">
+              {getInitials(name)}
+            </div>
           )}
           <div className="providerModal__nameBlock">
             <h2 className="providerModal__name">{name}</h2>
@@ -123,9 +137,11 @@ const ProviderModal = ({
         </div>
 
         {/* Book Appointment */}
-        <button className="providerModal__bookBtn" onClick={onBook}>
-          Book Appointment
-        </button>
+        {onBook && (
+          <button type="button" className="providerModal__bookBtn" onClick={onBook}>
+            Book Appointment
+          </button>
+        )}
       </div>
     </div>
   );

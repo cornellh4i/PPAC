@@ -5,6 +5,7 @@ interface Props {
   onConfirm: () => void;
   heading?: string;
   body?: string;
+  confirmLabel?: string;
 }
 
 const DeleteConfirmModal: React.FC<Props> = ({
@@ -12,6 +13,7 @@ const DeleteConfirmModal: React.FC<Props> = ({
   onConfirm,
   heading = "Delete event?",
   body = "This event will be permanently removed. This cannot be undone.",
+  confirmLabel = "Delete",
 }) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -44,7 +46,7 @@ const DeleteConfirmModal: React.FC<Props> = ({
             type="button"
             onClick={onConfirm}
           >
-            Delete
+            {confirmLabel}
           </button>
         </div>
       </div>

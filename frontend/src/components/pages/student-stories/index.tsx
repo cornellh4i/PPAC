@@ -21,6 +21,7 @@ import ppacTeam2 from "../../../assets/community/images/ppac-team-2.jpg";
 import ppacTeam3 from "../../../assets/community/images/ppac-team-3.jpg";
 import ppacTeam4 from "../../../assets/community/images/ppac-team-4.jpg";
 import "./index.scss";
+import { cloudinaryResize } from '../../../utils/cloudinary';
 
 interface Story {
   _id: string;
@@ -77,7 +78,7 @@ const StudentStories: React.FC = () => {
             raw.map((p) => ({
               caption: p.caption || 'Shared Joy',
               date: p.date || '',
-              imageUrl: p.imageUrl,
+              imageUrl: cloudinaryResize(p.imageUrl, 640),
             }))
           );
         }
